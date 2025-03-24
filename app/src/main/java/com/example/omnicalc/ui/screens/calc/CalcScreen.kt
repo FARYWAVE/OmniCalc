@@ -2,6 +2,7 @@ package com.example.omnicalc.ui.screens.calc
 
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -23,24 +24,14 @@ import com.example.omnicalc.ui.components.*
 @Composable
 fun CalcScreen() {
     val viewModel: CalcViewModel = viewModel()
-    ConstraintLayout(modifier = Modifier.fillMaxSize()) {
-        val (display, keyboard) = createRefs()
-        val guideline = createGuidelineFromTop(1f)
+    Column(modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Bottom) {
         ConstraintLayout(
-            modifier = Modifier.fillMaxSize().constrainAs(display) {
-                top.linkTo(parent.top)
-                bottom.linkTo(guideline)
-            }
+            Modifier.weight(1f).fillMaxWidth()
         ) {
 
         }
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .constrainAs(keyboard) {
-                    top.linkTo(guideline)
-                    bottom.linkTo(parent.bottom)
-                }
         ) {
             CalcKeyboard(viewModel)
         }

@@ -3,7 +3,7 @@ package com.example.omnicalc.ui.theme
 import androidx.compose.ui.graphics.Color
 
 val Black = Color(0xFF000000)
-val GrayDark = Color(0xFF090909)
+val GrayDark = Color(0xFF070707)
 val Gray = Color(0xFF333333)
 val GrayLight = Color(0xFFD7D7D7)
 val White = Color(0xFFFFFFFF)

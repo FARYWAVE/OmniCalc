@@ -37,6 +37,18 @@ fun Int.vh(): Dp {
 }
 
 @Composable
+fun Float.vw(): Dp {
+    val screenWidth = LocalConfiguration.current.screenWidthDp
+    return (this * screenWidth / 100).dp
+}
+
+@Composable
+fun Float.vh(): Dp {
+    val screenHeight = LocalConfiguration.current.screenHeightDp
+    return (this * screenHeight / 100).dp
+}
+
+@Composable
 fun SquareButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,

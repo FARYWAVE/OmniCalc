@@ -19,26 +19,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.omnicalc.ui.screens.calc.CalcScreen
 
+
+
 @Composable
 fun ConvertorSelectorScreen() {
-    Text("This is the Convertor Selector Screen")
-    Card(
-        modifier = Modifier.padding(bottom = 16.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(text = "Card Title")
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "This is a simple card to check the theme.")
-        }
-    }
 
-    // Elevated Button
-    ElevatedButton(onClick = { /* Handle elevated button click */ }) {
-        Text("Elevated Button")
-    }
 }
 
 
