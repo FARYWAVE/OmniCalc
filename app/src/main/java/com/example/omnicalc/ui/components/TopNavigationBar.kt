@@ -1,33 +1,26 @@
 package com.example.omnicalc.ui.components
 
-import android.content.res.Resources.Theme
 import androidx.compose.ui.res.painterResource
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.ui.res.painterResource
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.example.omnicalc.R
 import com.example.omnicalc.ui.navigation.Screen
-import com.example.omnicalc.ui.theme.FarywaveTheme
-import com.example.omnicalc.ui.theme.FarywaveTypo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppBar(navController: NavController) {
+fun TopAppBar(navController: NavController, onSettingsClick: () -> Unit) {
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route ?: ""
     TopAppBar(
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.secondary
+        ),
         title = { Text("") },
         navigationIcon = {
             IconButton(onClick = {
             }) {
-                Icon(painter = painterResource(id = R.drawable.overlay), contentDescription = "Overlay", tint = MaterialTheme.colorScheme.onSecondary)
+                Icon(painter = painterResource(id = R.drawable.overlay), contentDescription = "Overlay", tint = MaterialTheme.colorScheme.tertiary)
             }
         },
         actions = {
@@ -36,30 +29,25 @@ fun TopAppBar(navController: NavController) {
 
             }) {
                 Icon(painter = painterResource(id = R.drawable.calc), contentDescription = "Calc",
-                    tint = if (currentRoute == Screen.Calc.route) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSecondary)
+                    tint = if (currentRoute == Screen.Calc.route) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary)
             }
             IconButton(onClick = {
                 navController.navigate(Screen.FunctionSelector.route)
             }) {
                 Icon(painter = painterResource(id = R.drawable.function), contentDescription = "Function Selector",
-                    tint = if (currentRoute == Screen.FunctionSelector.route) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSecondary)
+                    tint = if (currentRoute == Screen.FunctionSelector.route) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary)
             }
             IconButton(onClick = {
                 navController.navigate(Screen.ConvertorSelector.route)
             }) {
                 Icon(painter = painterResource(id = R.drawable.convert), contentDescription = "Convertor Selector",
-                    tint = if (currentRoute == Screen.ConvertorSelector.route) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSecondary)
+                    tint = if ((currentRoute == Screen.ConvertorSelector.route) || (currentRoute.contains("convertor"))) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary)
             }
             IconButton(onClick = {
+                onSettingsClick()
             }) {
-                Icon(painter = painterResource(id = R.drawable.settings), contentDescription = "Settings", tint = MaterialTheme.colorScheme.onSecondary)
+                Icon(painter = painterResource(id = R.drawable.settings), contentDescription = "Settings", tint = MaterialTheme.colorScheme.tertiary)
             }
         }
     )
-}
-
-@Preview
-@Composable
-fun TopAppBarPreview() {
-    TopAppBar(navController = rememberNavController())
 }

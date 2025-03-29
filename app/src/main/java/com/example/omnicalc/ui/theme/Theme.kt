@@ -30,41 +30,22 @@ object ThemeManager {
 @Composable
 fun FarywaveTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
     val appColor = ThemeManager.appColor.value
     val colorScheme = if (darkTheme) {
         darkColorScheme(
             primary = appColor,
-            primaryContainer = GrayDark,
-            onPrimary = White,
-            secondary = appColor,
-            secondaryContainer = GrayDark,
-            onSecondary = White,
-            background = Black,
-            onBackground = White,
-            surface = GrayDark,
-            onSurface = White,
-            onError = RedDark,
-            error = RedDark,
-            outline = GrayDark
+            secondary = GrayDark,
+            tertiary = White,
+            background = Black
         )
     } else {
         lightColorScheme (
             primary = appColor,
-            primaryContainer = GrayLight,
-            onPrimary = White,
-            secondary = appColor,
-            secondaryContainer = GrayLight,
-            onSecondary = Black,
-            background = White,
-            onBackground = Black,
-            surface = GrayLight,
-            onSurface = Black,
-            onError = RedDark,
-            error = RedDark,
-            outline = GrayLight
+            secondary = GrayLight,
+            tertiary = Black,
+            background = White
         )
     }
 
@@ -74,28 +55,3 @@ fun FarywaveTheme(
         content = content,
     )
 }
-
-/*
-@Composable
-fun OmniCalcTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
-) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
-
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
-}*/

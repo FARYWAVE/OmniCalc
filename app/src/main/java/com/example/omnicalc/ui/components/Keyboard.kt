@@ -1,32 +1,8 @@
 package com.example.omnicalc.ui.components
 
-import android.util.Log
-import android.widget.Space
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.text.AnnotatedString
-import kotlinx.coroutines.delay
-import androidx.compose.ui.input.pointer.pointerInteropFilter
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupProperties
-import androidx.compose.foundation.gestures.detectTapGestures
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.indication
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -38,45 +14,28 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.lifecycle.ViewModel
 import com.example.omnicalc.R
-import com.example.omnicalc.ui.navigation.Screen
-import com.example.omnicalc.ui.screens.calc.*
-import com.example.omnicalc.ui.theme.GrayDark
-import com.example.omnicalc.ui.theme.ThemeManager
-import com.example.omnicalc.utils.SquareButton
+import com.example.omnicalc.ui.screens.calc.CalcViewModel
 import com.example.omnicalc.utils.vw
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlin.coroutines.coroutineContext
-import kotlinx.coroutines.launch as launch1
 
 
 interface KeyPressHandler {
@@ -167,21 +126,23 @@ enum class FunKey(val keyName: String, val iconType: IconType = IconType.Text(ke
 
 @Composable
 fun SecondaryFuncBar(parentViewModel: KeyPressHandler, keys: Array<Key>) {
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .background(MaterialTheme.colorScheme.outline)) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.secondary)
+    ) {
         for (key: Key in keys) {
             Button(
                 onClick = { parentViewModel.onKeyPress(key.keyName) },
                 modifier = Modifier
-                    .background(MaterialTheme.colorScheme.outline)
+                    .background(MaterialTheme.colorScheme.secondary)
                     .height(16.666f.vw())
                     .padding(0.dp)
                     .aspectRatio(1f),
                 shape = CutCornerShape(0.dp),
                 contentPadding = PaddingValues(0.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.outline,
+                    containerColor = MaterialTheme.colorScheme.secondary,
                     contentColor = MaterialTheme.colorScheme.primary
                 )
             ) {
@@ -196,14 +157,14 @@ fun SecondaryFuncBar(parentViewModel: KeyPressHandler, keys: Array<Key>) {
         Button(
             onClick = { parentViewModel.onKeyPress(Key.CLEAR.keyName) },
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.onBackground)
+                .background(MaterialTheme.colorScheme.tertiary)
                 .height(16.666f.vw())
                 .padding(0.dp)
                 .aspectRatio(1f),
             shape = CutCornerShape(0.dp),
             contentPadding = PaddingValues(0.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.onBackground,
+                containerColor = MaterialTheme.colorScheme.tertiary,
                 contentColor = MaterialTheme.colorScheme.background
             )
         ) {
@@ -216,14 +177,14 @@ fun SecondaryFuncBar(parentViewModel: KeyPressHandler, keys: Array<Key>) {
         Button(
             onClick = { parentViewModel.onKeyPress(Key.CLEAR.keyName) },
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.onBackground)
+                .background(MaterialTheme.colorScheme.tertiary)
                 .height(16.666f.vw())
                 .padding(0.dp)
                 .aspectRatio(1f),
             shape = CutCornerShape(0.dp),
             contentPadding = PaddingValues(0.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.onBackground,
+                containerColor = MaterialTheme.colorScheme.tertiary,
                 contentColor = MaterialTheme.colorScheme.background
             )
         ) {
@@ -262,7 +223,7 @@ fun CalcKeyboard(parentViewModel: KeyPressHandler) {
 fun Variables(parentViewModel: KeyPressHandler) {
     val keys = ('a'..'z').toList()
     LazyRow(modifier = Modifier.fillMaxSize()) {
-        items((keys.size + 3) / 4) { colInd ->  // Ensure full row coverage
+        items((keys.size + 3) / 4) { colInd ->
             Column(modifier = Modifier.fillMaxHeight()) {
                 repeat(4) { rowInd ->
                     val index = colInd * 4 + rowInd
@@ -272,21 +233,21 @@ fun Variables(parentViewModel: KeyPressHandler) {
                             onClick = { parentViewModel.onKeyPress(key.toString()) },
                             modifier = Modifier
                                 .background(MaterialTheme.colorScheme.background)
-                                .fillMaxWidth()  // Ensure full width inside column
-                                .height(16.666f.vw())   // Proper height instead of size
+                                .fillMaxWidth()
+                                .height(16.666f.vw())
                                 .padding(0.dp)
                                 .aspectRatio(1f),
 
                             contentPadding = PaddingValues(0.dp),
-                            colors = ButtonDefaults.buttonColors( // Override default button colors
+                            colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.background,
-                                contentColor = MaterialTheme.colorScheme.onBackground
+                                contentColor = MaterialTheme.colorScheme.tertiary
                             )// Remove extra padding
                         ) {
                             Text(
                                 key.toString(),
                                 fontSize = 20.sp,
-                                color = MaterialTheme.colorScheme.onBackground
+                                color = MaterialTheme.colorScheme.tertiary
                             )
                         }
                     }
@@ -303,7 +264,7 @@ fun Functions(parentViewModel: KeyPressHandler) {
     val keys = FunKey.entries.toTypedArray()
 
     LazyRow(modifier = Modifier.fillMaxSize()) {
-        items((keys.size + 3) / 4) { colInd ->  // Ensure full row coverage
+        items((keys.size + 3) / 4) { colInd ->
             Column(modifier = Modifier.fillMaxHeight()) {
                 repeat(4) { rowInd ->
                     val index = colInd * 4 + rowInd
@@ -315,26 +276,27 @@ fun Functions(parentViewModel: KeyPressHandler) {
                                 onClick = { parentViewModel.onKeyPress(key.keyName) },
                                 modifier = Modifier
                                     .background(MaterialTheme.colorScheme.background)
-                                    .fillMaxWidth()  // Ensure full width inside column
-                                    .height(16.666f.vw())   // Proper height instead of size
+                                    .fillMaxWidth()
+                                    .height(16.666f.vw())
                                     .padding(0.dp)
                                     .aspectRatio(1f),
-
+                                shape = CutCornerShape(0.dp),
                                 contentPadding = PaddingValues(0.dp),
-                                colors = ButtonDefaults.buttonColors( // Override default button colors
+                                colors = ButtonDefaults.buttonColors(
                                     containerColor = MaterialTheme.colorScheme.background,
-                                    contentColor = MaterialTheme.colorScheme.onBackground
-                                )// Remove extra padding
+                                    contentColor = MaterialTheme.colorScheme.tertiary
+                                )
                             ) {
                                 Text(
                                     key.iconType.text,
                                     fontSize = 18.sp,
-                                    color = MaterialTheme.colorScheme.onBackground
+                                    color = MaterialTheme.colorScheme.tertiary
                                 )
                             }
                         } else if (key.iconType is IconType.Icon) {
-                            IconButton(
+                            Button(
                                 onClick = { parentViewModel.onKeyPress(key.keyName) },
+                                shape = CutCornerShape(0.dp),
                                 modifier = Modifier
                                     .background(MaterialTheme.colorScheme.background)
                                     .fillMaxWidth()
@@ -345,7 +307,7 @@ fun Functions(parentViewModel: KeyPressHandler) {
                                 Icon(
                                     painter = painterResource(id = key.iconType.id),
                                     contentDescription = key.keyName,
-                                    tint = MaterialTheme.colorScheme.onBackground
+                                    tint = MaterialTheme.colorScheme.tertiary
                                 )
                             }
                         }
@@ -395,12 +357,12 @@ fun SimplestOperations(parentViewModel: KeyPressHandler, secondaryKeys: Snapshot
                             contentPadding = PaddingValues(0.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.background,
-                                contentColor = MaterialTheme.colorScheme.onBackground
+                                contentColor = MaterialTheme.colorScheme.tertiary
                             )
                         ) {
                             Text(
                                 key.removePrefix("number/"),
-                                color = MaterialTheme.colorScheme.onBackground,
+                                color = MaterialTheme.colorScheme.tertiary,
                                 fontSize = 20.sp
                             )
                         }
@@ -486,12 +448,12 @@ fun SimplestOperations(parentViewModel: KeyPressHandler, secondaryKeys: Snapshot
                     shape = CutCornerShape(0.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onBackground,
+                        contentColor = MaterialTheme.colorScheme.tertiary,
                     )
                 ) {
                     Text(
                         Key.EQUALS.keyIcon,
-                        color = MaterialTheme.colorScheme.onBackground,
+                        color = MaterialTheme.colorScheme.tertiary,
                         fontSize = 20.sp
                     )
                 }

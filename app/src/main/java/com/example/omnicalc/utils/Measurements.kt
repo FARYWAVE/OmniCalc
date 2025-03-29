@@ -1,155 +1,187 @@
 package com.example.omnicalc.utils
+import com.example.omnicalc.R
 
-class Measurement(val type: Measurement.Type) {
-    enum class Type {
-        LENGTH,
-        AREA,
-        VOLUME,
-        SPEED,
-        MASS,
-        TEMPERATURE,
-        PRESSURE,
-        POWER,
-        ENERGY,
-        TIME,
-        DATA,
-        NUMBER_SYSTEM,
-        CURRENCY
+interface MeasurementUnit {
+    val ratioToSI: Double
+    val unitName: String
+}
+
+
+class Measurement {
+    companion object {
+        fun getType(name: String) : Type {
+            for (unit in Type.entries.toTypedArray()) {
+                if (unit.typeName == name) return unit
+            }
+            throw Exception("No such unit named $name")
+        }
+        fun <T> convert(value: Double, from: T, to: T): Double where T : Enum<T>, T : MeasurementUnit {
+            return value * from.ratioToSI / to.ratioToSI
+        }
     }
-}
-enum class Length(val unitName: String, val ratioToSI: Float) {
-    METER("Meter", 1f),
-    KILOMETER("Kilometer", 1000f),
-    DECIMETER("Decimeter", 0.1f),
-    CENTIMETER("Centimeter", 0.01f),
-    MILLIMETER("Millimeter", 0.001f),
-    MICROMETER("Micrometer", 1e-6f),
-    NANOMETER("Nanometer", 1e-9f),
-    MILE("Mile", 1609.34f),
-    YARD("Yard", 0.9144f),
-    FOOT("Foot", 0.3048f),
-    INCH("Inch", 0.0254f),
-    CHINESE_LI("Chinese Li", 500f),
-    CHINESE_ZHANG("Chinese Zhang", 3f),
-    CHINESE_CUN("Chinese Cun", 0.033f)
-}
-
-enum class Area(val unitName: String, val ratioToSI: Float) {
-    SQUARE_METER("Square Meter", 1f),
-    SQUARE_KILOMETER("Square Kilometer", 1e6f),
-    HECTARE("Hectare", 10000f),
-    ARE("Are", 100f),
-    SQUARE_CENTIMETER("Square Centimeter", 1e-4f),
-    SQUARE_MILLIMETER("Square Millimeter", 1e-6f),
-    SQUARE_INCH("Square Inch", 0.00064516f),
-    SQUARE_FOOT("Square Foot", 0.092903f),
-    SQUARE_YARD("Square Yard", 0.836127f),
-    SQUARE_MILE("Square Mile", 2.58999e6f),
-    CHINESE_MU("Chinese Mu", 666.7f) // Chinese unit for area (Mu)
-}
-
-enum class Volume(val unitName: String, val ratioToSI: Float) {
-    CUBIC_METER("Cubic Meter", 1f),
-    LITER("Liter", 0.001f),
-    MILLILITER("Milliliter", 1e-6f),
-    CUBIC_KILOMETER("Cubic Kilometer", 1e9f),
-    CUBIC_CENTIMETER("Cubic Centimeter", 1e-6f),
-    CUBIC_MILLIMETER("Cubic Millimeter", 1e-9f),
-    CUBIC_INCH("Cubic Inch", 1.63871e-5f),
-    CUBIC_FOOT("Cubic Foot", 0.0283168f),
-    CUBIC_YARD("Cubic Yard", 0.764555f),
-    GALLON("Gallon", 0.00378541f),
-    QUART("Quart", 9.4635e-4f),
-    PINT("Pint", 4.7318e-4f),
-    CHINESE_SHENG("Chinese Sheng", 0.002f)
-}
-
-enum class Speed(val unitName: String, val ratioToSI: Float) {
-    METER_PER_SECOND("Meter per Second", 1f),
-    KILOMETER_PER_HOUR("Kilometer per Hour", 1000f / 3600f),
-    MILE_PER_HOUR("Mile per Hour", 1609.34f / 3600f),
-    FOOT_PER_SECOND("Foot per Second", 0.3048f),
-    KNOT("Knot", 1852f / 3600f),
-    MACH("Mach", 343f),
-    SPEED_OF_LIGHT("Speed of Light", 299792458f)
-}
 
 
-enum class Mass(val unitName: String, val ratioToSI: Float) {
-    KILOGRAM("Kilogram", 1f),
-    GRAM("Gram", 0.001f),
-    MILLIGRAM("Milligram", 1e-6f),
-    MICROGRAM("Microgram", 1e-9f),
-    TONNE("Tonne", 1000f),
-    POUND("Pound", 0.453592f),
-    OUNCE("Ounce", 0.0283495f),
-    STONE("Stone", 6.35029f),
-    LONG_TON("Long Ton", 1016.05f),
-    SHORT_TON("Short Ton", 907.184f),
-    CARAT("Carat", 2e-5f),
-    CHINESE_JIN("Chinese Jin", 0.5f) // Chinese unit for mass (Jin)
+
+    enum class Type(
+        val typeName: String,
+        val iconResId: Int,
+        val unitEnum: Class<out Enum<*>>
+    ) {
+        LENGTH("Length", R.drawable.length, Length::class.java),
+        AREA("Area", R.drawable.area, Area::class.java),
+        SPEED("Speed", R.drawable.speed, Speed::class.java),
+        VOLUME("Volume", R.drawable.volume, Volume::class.java),
+        MASS("Mass", R.drawable.mass, Mass::class.java),
+        TEMPERATURE("Temperature", R.drawable.temp, Temperature::class.java),
+        PRESSURE("Pressure", R.drawable.pressure, Pressure::class.java),
+        POWER("Power", R.drawable.power, Power::class.java),
+        ENERGY("Energy", R.drawable.energy, Energy::class.java),
+        TIME("Time", R.drawable.time, Time::class.java),
+        DATA("Data", R.drawable.data, Data::class.java),
+        NUMBER_SYSTEM("Number System", R.drawable.number_system, NumberSystem::class.java),
+        CURRENCY("Currency", R.drawable.currency, Currency::class.java);
+
+        // Helper function to get all units for this type
+        fun getUnits(): Array<MeasurementUnit> {
+            return unitEnum.enumConstants?.filterIsInstance<MeasurementUnit>()?.toTypedArray()
+                ?: emptyArray()
+
+        }
+    }
+
+}
+enum class Length(override val unitName: String, override val ratioToSI: Double) : MeasurementUnit {
+    METER("Meter", 1.0),
+    KILOMETER("Kilometer", 1000.0),
+    DECIMETER("Decimeter", 0.1),
+    CENTIMETER("Centimeter", 0.01),
+    MILLIMETER("Millimeter", 0.001),
+    MICROMETER("Micrometer", 1e-6),
+    NANOMETER("Nanometer", 1e-9),
+    MILE("Mile", 1609.34),
+    YARD("Yard", 0.9144),
+    FOOT("Foot", 0.3048),
+    INCH("Inch", 0.0254),
+    CHINESE_LI("Chinese Li", 500.0),
+    CHINESE_ZHANG("Chinese Zhang", 3.0),
+    CHINESE_CUN("Chinese Cun", 0.033)
 }
 
-enum class Temperature(val unitName: String) {
-    CELSIUS("Celsius"),
-    FAHRENHEIT("Fahrenheit"),
-    KELVIN("Kelvin")
+enum class Area(override val unitName: String, override val ratioToSI: Double) : MeasurementUnit {
+    SQUARE_METER("Square Meter", 1.0),
+    SQUARE_KILOMETER("Square Kilometer", 1e6),
+    HECTARE("Hectare", 10000.0),
+    ARE("Are", 100.0),
+    SQUARE_CENTIMETER("Square Centimeter", 1e-4),
+    SQUARE_MILLIMETER("Square Millimeter", 1e-6),
+    SQUARE_INCH("Square Inch", 0.00064516),
+    SQUARE_FOOT("Square Foot", 0.092903),
+    SQUARE_YARD("Square Yard", 0.836127),
+    SQUARE_MILE("Square Mile", 2.58999e6),
+    CHINESE_MU("Chinese Mu", 666.7)
 }
 
-enum class Pressure(val unitName: String, val ratioToSI: Float) {
-    PASCAL("Pascal", 1f),
-    KILOPASCAL("Kilopascal", 1000f),
-    BAR("Bar", 100000f),
-    MILLIBAR("Millibar", 100f),
-    ATMOSPHERE("Atmosphere", 101325f),
-    TORR("Torr", 133.322f),
-    PSI("PSI", 6894.76f),
-    INCH_OF_MERCURY("Inch of Mercury", 3386.39f)
+enum class Volume(override val unitName: String, override val ratioToSI: Double) : MeasurementUnit {
+    CUBIC_METER("Cubic Meter", 1.0),
+    LITER("Liter", 0.001),
+    MILLILITER("Milliliter", 1e-6),
+    CUBIC_KILOMETER("Cubic Kilometer", 1e9),
+    CUBIC_CENTIMETER("Cubic Centimeter", 1e-6),
+    CUBIC_MILLIMETER("Cubic Millimeter", 1e-9),
+    CUBIC_INCH("Cubic Inch", 1.63871e-5),
+    CUBIC_FOOT("Cubic Foot", 0.0283168),
+    CUBIC_YARD("Cubic Yard", 0.764555),
+    GALLON("Gallon", 0.00378541),
+    QUART("Quart", 9.4635e-4),
+    PINT("Pint", 4.7318e-4),
+    CHINESE_SHENG("Chinese Sheng", 0.002)
 }
 
-enum class Power(val unitName: String, val ratioToSI: Float) {
-    WATT("Watt", 1f),
-    KILOWATT("Kilowatt", 1000f),
-    MEGAWATT("Megawatt", 1e6f),
-    HORSEPOWER("Horsepower", 745.7f),
-    BTU_PER_HOUR("BTU per Hour", 0.293071f),
-    CALORIE_PER_SECOND("Calorie per Second", 4.184f),
-    JOULE_PER_SECOND("Joule per Second", 1f)
+enum class Speed(override val unitName: String, override val ratioToSI: Double) : MeasurementUnit {
+    METER_PER_SECOND("Meter per Second", 1.0),
+    KILOMETER_PER_HOUR("Kilometer per Hour", 1000.0 / 3600.0),
+    MILE_PER_HOUR("Mile per Hour", 1609.34 / 3600.0),
+    FOOT_PER_SECOND("Foot per Second", 0.3048),
+    KNOT("Knot", 1852.0 / 3600.0),
+    MACH("Mach", 343.0),
+    SPEED_OF_LIGHT("Speed of Light", 299792458.0)
 }
 
-enum class Energy(val unitName: String, val ratioToSI: Float) {
-    JOULE("Joule", 1f),
-    KILOJOULE("Kilojoule", 1000f),
-    CALORIE("Calorie", 4.184f),
-    KILOCALORIE("Kilocalorie", 4184f),
-    ELECTRON_VOLT("Electron Volt", 1.60218e-19f),
-    WATT_HOUR("Watt Hour", 3600f)
+enum class Mass(override val unitName: String, override val ratioToSI: Double) : MeasurementUnit {
+    KILOGRAM("Kilogram", 1.0),
+    GRAM("Gram", 0.001),
+    MILLIGRAM("Milligram", 1e-6),
+    MICROGRAM("Microgram", 1e-9),
+    TONNE("Tonne", 1000.0),
+    POUND("Pound", 0.453592),
+    OUNCE("Ounce", 0.0283495),
+    STONE("Stone", 6.35029),
+    LONG_TON("Long Ton", 1016.05),
+    SHORT_TON("Short Ton", 907.184),
+    CARAT("Carat", 2e-5),
+    CHINESE_JIN("Chinese Jin", 0.5)
 }
 
-enum class Time(val unitName: String, val ratioToSI: Float) {
-    SECOND("Second", 1f),
-    MINUTE("Minute", 60f),
-    HOUR("Hour", 3600f),
-    DAY("Day", 86400f),
-    WEEK("Week", 604800f)
+enum class Pressure(override val unitName: String, override val ratioToSI: Double) : MeasurementUnit {
+    PASCAL("Pascal", 1.0),
+    KILOPASCAL("Kilopascal", 1000.0),
+    BAR("Bar", 100000.0),
+    MILLIBAR("Millibar", 100.0),
+    ATMOSPHERE("Atmosphere", 101325.0),
+    TORR("Torr", 133.322),
+    PSI("PSI", 6894.76),
+    INCH_OF_MERCURY("Inch of Mercury", 3386.39)
 }
 
-enum class Data(val unitName: String, val ratioToSI: Float) {
-    BYTE("Byte", 1f),
-    KILOBYTE("Kilobyte", 1024f),
-    MEGABYTE("Megabyte", 1048576f), // 1024 * 1024
-    GIGABYTE("Gigabyte", 1073741824f), // 1024 * 1024 * 1024
-    TERABYTE("Terabyte", 1099511627776f) // 1024 * 1024 * 1024 * 1024
+enum class Power(override val unitName: String, override val ratioToSI: Double) : MeasurementUnit {
+    WATT("Watt", 1.0),
+    KILOWATT("Kilowatt", 1000.0),
+    MEGAWATT("Megawatt", 1e6),
+    HORSEPOWER("Horsepower", 745.7),
+    BTU_PER_HOUR("BTU per Hour", 0.293071),
+    CALORIE_PER_SECOND("Calorie per Second", 4.184),
+    JOULE_PER_SECOND("Joule per Second", 1.0)
 }
 
-enum class NumberSystem(val systemName: String) {
+enum class Energy(override val unitName: String, override val ratioToSI: Double) : MeasurementUnit {
+    JOULE("Joule", 1.0),
+    KILOJOULE("Kilojoule", 1000.0),
+    CALORIE("Calorie", 4.184),
+    KILOCALORIE("Kilocalorie", 4184.0),
+    ELECTRON_VOLT("Electron Volt", 1.60218e-19),
+    WATT_HOUR("Watt Hour", 3600.0)
+}
+
+enum class Time(override val unitName: String, override val ratioToSI: Double) : MeasurementUnit {
+    SECOND("Second", 1.0),
+    MINUTE("Minute", 60.0),
+    HOUR("Hour", 3600.0),
+    DAY("Day", 86400.0),
+    WEEK("Week", 604800.0)
+}
+
+enum class Data(override val unitName: String, override val ratioToSI: Double) : MeasurementUnit {
+    BYTE("Byte", 1.0),
+    KILOBYTE("Kilobyte", 1024.0),
+    MEGABYTE("Megabyte", 1048576.0),
+    GIGABYTE("Gigabyte", 1073741824.0),
+    TERABYTE("Terabyte", 1099511627776.0)
+}
+
+enum class NumberSystem(override val unitName: String, override val ratioToSI: Double = 0.0) : MeasurementUnit {
     BINARY("Binary"),
     OCTAL("Octal"),
     DECIMAL("Decimal"),
     HEXADECIMAL("Hexadecimal")
 }
 
-enum class Currency(val currencyName: String) {
+enum class Temperature(override val unitName: String, override val ratioToSI: Double = 0.0) : MeasurementUnit {
+    CELSIUS("Celsius"),
+    FAHRENHEIT("Fahrenheit"),
+    KELVIN("Kelvin")
+}
+
+enum class Currency(override val unitName: String, override val ratioToSI: Double = 0.0) : MeasurementUnit {
     USD("US Dollar"),
     EUR("Euro"),
     GBP("British Pound"),
