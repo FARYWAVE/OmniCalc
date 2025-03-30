@@ -1,5 +1,6 @@
 package com.example.omnicalc.ui.components
 
+import androidx.annotation.DrawableRes
 import androidx.compose.ui.res.painterResource
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -18,36 +19,64 @@ fun TopAppBar(navController: NavController, onSettingsClick: () -> Unit) {
         ),
         title = { Text("") },
         navigationIcon = {
-            IconButton(onClick = {
-            }) {
+            IconButton(onClick = {}) {
                 Icon(painter = painterResource(id = R.drawable.overlay), contentDescription = "Overlay", tint = MaterialTheme.colorScheme.tertiary)
             }
         },
         actions = {
-            IconButton(onClick = {
-                navController.navigate(Screen.Calc.route)
-
-            }) {
-                Icon(painter = painterResource(id = R.drawable.calc), contentDescription = "Calc",
-                    tint = if (currentRoute == Screen.Calc.route) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary)
-            }
-            IconButton(onClick = {
-                navController.navigate(Screen.FunctionSelector.route)
-            }) {
-                Icon(painter = painterResource(id = R.drawable.function), contentDescription = "Function Selector",
-                    tint = if (currentRoute == Screen.FunctionSelector.route) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary)
-            }
-            IconButton(onClick = {
-                navController.navigate(Screen.ConvertorSelector.route)
-            }) {
-                Icon(painter = painterResource(id = R.drawable.convert), contentDescription = "Convertor Selector",
-                    tint = if ((currentRoute == Screen.ConvertorSelector.route) || (currentRoute.contains("convertor"))) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary)
-            }
-            IconButton(onClick = {
-                onSettingsClick()
-            }) {
-                Icon(painter = painterResource(id = R.drawable.settings), contentDescription = "Settings", tint = MaterialTheme.colorScheme.tertiary)
+            TopBarIconButton(
+                navController = navController,
+                destination = Screen.Calc.route,
+                iconRes = R.drawable.calc,
+                description = "Calc",
+                currentRoute = currentRoute
+            )
+            TopBarIconButton(
+                navController = navController,
+                destination = Screen.FunctionSelector.route,
+                iconRes = R.drawable.function,
+                description = "Function Selector",
+                currentRoute = currentRoute
+            )
+            TopBarIconButton(
+                navController = navController,
+                destination = Screen.ConvertorSelector.route,
+                iconRes = R.drawable.convert,
+                description = "Convertor Selector",
+                currentRoute = currentRoute,
+                matchPartial = true
+            )
+            IconButton(onClick = { onSettingsClick() }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.settings),
+                    contentDescription = "Settings",
+                    tint = MaterialTheme.colorScheme.tertiary
+                )
             }
         }
     )
+}
+
+@Composable
+private fun TopBarIconButton(
+    navController: NavController,
+    destination: String,
+    @DrawableRes iconRes: Int,
+    description: String,
+    currentRoute: String,
+    matchPartial: Boolean = false
+) {
+    val isSelected = if (matchPartial) {
+        currentRoute.contains("convertor")
+    } else {
+        currentRoute == destination
+    }
+
+    IconButton(onClick = { navController.navigate(destination) }) {
+        Icon(
+            painter = painterResource(id = iconRes),
+            contentDescription = description,
+            tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary
+        )
+    }
 }

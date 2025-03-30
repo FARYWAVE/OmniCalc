@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -21,6 +22,7 @@ import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,8 +31,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.omnicalc.R
@@ -42,85 +46,41 @@ interface KeyPressHandler {
     fun onKeyPress(keyName: String)
 }
 
+
 enum class Key(val keyName: String, val keyIcon: String) {
-    BRACKETS("brackets", "( )"),
-    ABSOLUTE("absolute", "| |"),
-    GREATER("greater", ">"),
-    GREATER_EQUALS("greater_equals", "≥"),
-    EQUALS("equals", "="),
-    LESS_EQUALS("less_equals", "≤"),
-    LESS("less", "<"),
-    FRACTION("fraction", "½"),
+    BRACKETS("brackets", "( )"), ABSOLUTE("absolute", "| |"),
+    GREATER("greater", ">"), GREATER_EQUALS("greater_equals", "≥"),
+    EQUALS("equals", "="), LESS_EQUALS("less_equals", "≤"),
+    LESS("less", "<"), FRACTION("fraction", "½"),
     FRACTION_IMPROPER("fraction_improper", "⅔"),
-    ROOT_SQUARE("root_square", "√"),
-    ROOT_CUBIC("root_cubic", "∛"),
-    ROOT("root", "°√"),
-    DEGREE_SQUARE("degree_square", "x²"),
-    DEGREE_CUBIC("degree_cubic", "x³"),
-    DEGREE("degree", "x°"),
-    PI("pi", "π"),
-    PI_DIV_2("pi_div_2", "π/2"),
-    PI_DIV_3("pi_div_3", "π/3"),
-    PERCENT("percent", "%"),
-    REMAINDER("remainder", "%"),
-    PLUS("plus", "+"),
-    MINUS("minus", "-"),
-    MULTIPLY("multiply", "×"),
-    DIVIDE("divide", "÷"),
-    DOT("dot", "."),
-    NUMBER("number/{n}", "n"),
-    VARIABLE("variable/{ch}", "ch"),
-    DOUBLE_O("double_o", "00"),
-    BACKSPACE("backspace", "<-"),
+    ROOT_SQUARE("root_square", "√"), ROOT_CUBIC("root_cubic", "∛"),
+    ROOT("root", "°√"), DEGREE_SQUARE("degree_square", "x²"),
+    DEGREE_CUBIC("degree_cubic", "x³"), DEGREE("degree", "x°"),
+    PI("pi", "π"), PI_DIV_2("pi_div_2", "π/2"), PI_DIV_3("pi_div_3", "π/3"),
+    PERCENT("percent", "%"), REMAINDER("remainder", "%"),
+    PLUS("plus", "+"), MINUS("minus", "-"), MULTIPLY("multiply", "×"),
+    DIVIDE("divide", "÷"), DOT("dot", "."),
+    NUMBER("number/{n}", "n"), VARIABLE("variable/{ch}", "ch"),
+    DOUBLE_O("double_o", "00"), BACKSPACE("backspace", "←"),
     CLEAR("clear", "AC");
 
-    // Method to format for numbers
-    fun number(num: Int): String {
-        return keyName.replace("{n}", num.toString())
-    }
-
-    // Method to format for variables
-    fun variable(char: Char): String {
-        return keyName.replace("{ch}", char.toString())
-    }
+    fun number(num: Int) = keyName.replace("{n}", num.toString())
+    fun variable(char: Char) = keyName.replace("{ch}", char.toString())
 }
+
 
 sealed class IconType {
     data class Icon(val id: Int) : IconType()
     data class Text(val text: String) : IconType()
 }
 
+
 enum class FunKey(val keyName: String, val iconType: IconType = IconType.Text(keyName)) {
-    SIN("sin"),
-    COS("cos"),
-    TAN("tan"),
-    COT("cot"),
-    SEC("sec"),
-    CSC("csc"),
-
-    ARCSIN("arcsin"),
-    ARCCOS("arccos"),
-    ARCTAN("arctan"),
-    ARCCOT("arccot"),
-    ARCSEC("arcsec"),
-    ARCCSC("arccsc"),
-
-    SINH("sinh"),
-    COSH("cosh"),
-    TANH("tanh"),
-    COTH("coth"),
-
-    LN("ln"),
-    LOG("log"),
-    SQRT("√"),
-    EXP("exp"),
-
-    FACTORIAL("!"),
-    LIMIT("lim"),
-    DERIVATIVE("d/dx"),
-    INTEGRAL("∫"),
-
-    E("e")
+    SIN("sin"), COS("cos"), TAN("tan"), COT("cot"), SEC("sec"), CSC("csc"),
+    ARCSIN("arcsin"), ARCCOS("arccos"), ARCTAN("arctan"), ARCCOT("arccot"),
+    ARCSEC("arcsec"), ARCCSC("arccsc"), SINH("sinh"), COSH("cosh"), TANH("tanh"),
+    COTH("coth"), LN("ln"), LOG("log"), SQRT("\u221a"), EXP("exp"), FACTORIAL("!"),
+    LIMIT("lim"), DERIVATIVE("d/dx"), INTEGRAL("\u222b"), E("e")
 }
 
 
@@ -131,71 +91,61 @@ fun SecondaryFuncBar(parentViewModel: KeyPressHandler, keys: Array<Key>) {
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.secondary)
     ) {
-        for (key: Key in keys) {
-            Button(
-                onClick = { parentViewModel.onKeyPress(key.keyName) },
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.secondary)
-                    .height(16.666f.vw())
-                    .padding(0.dp)
-                    .aspectRatio(1f),
-                shape = CutCornerShape(0.dp),
-                contentPadding = PaddingValues(0.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary,
-                    contentColor = MaterialTheme.colorScheme.primary
-                )
-            ) {
-                Text(
-                    key.keyIcon,
-                    fontSize = 20.sp,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
+        keys.forEach { key ->
+            KeyButton(
+                parentViewModel,
+                key.keyIcon,
+                MaterialTheme.colorScheme.secondary,
+                MaterialTheme.colorScheme.primary
+            )
         }
         Spacer(modifier = Modifier.weight(2f))
-        Button(
-            onClick = { parentViewModel.onKeyPress(Key.CLEAR.keyName) },
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.tertiary)
-                .height(16.666f.vw())
-                .padding(0.dp)
-                .aspectRatio(1f),
-            shape = CutCornerShape(0.dp),
-            contentPadding = PaddingValues(0.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.tertiary,
-                contentColor = MaterialTheme.colorScheme.background
-            )
-        ) {
-            Text(
-                Key.CLEAR.keyIcon,
-                fontSize = 20.sp,
-                color = MaterialTheme.colorScheme.background
-            )
-        }
-        Button(
-            onClick = { parentViewModel.onKeyPress(Key.CLEAR.keyName) },
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.tertiary)
-                .height(16.666f.vw())
-                .padding(0.dp)
-                .aspectRatio(1f),
-            shape = CutCornerShape(0.dp),
-            contentPadding = PaddingValues(0.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.tertiary,
-                contentColor = MaterialTheme.colorScheme.background
-            )
-        ) {
+        KeyButton(
+            parentViewModel,
+            Key.CLEAR.keyIcon,
+            MaterialTheme.colorScheme.tertiary,
+            MaterialTheme.colorScheme.background
+        )
+        KeyButton(
+            parentViewModel,
+            Key.BACKSPACE.keyIcon,
+            MaterialTheme.colorScheme.tertiary,
+            MaterialTheme.colorScheme.background,
+            R.drawable.backspace
+        )
+    }
+}
+
+
+@Composable
+fun KeyButton(
+    parentViewModel: KeyPressHandler,
+    keyName: String,
+    bgColor: Color,
+    textColor: Color,
+    iconId: Int? = null,
+    textSize: TextUnit = 18.sp
+) {
+    Button(
+        onClick = { parentViewModel.onKeyPress(keyName) },
+        modifier = Modifier
+            .background(bgColor)
+            .height(16.666f.vw())
+            .aspectRatio(1f),
+        shape = CutCornerShape(0.dp),
+        contentPadding = PaddingValues(0.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = bgColor)
+    ) {
+        if (iconId != null) {
             Icon(
-                painter = painterResource(id = R.drawable.backspace),
-                contentDescription = "Backspace",
-                tint = MaterialTheme.colorScheme.background
+                painter = painterResource(id = iconId),
+                contentDescription = keyName,
+                tint = textColor
             )
+        } else {
+            Text(keyName, fontSize = textSize, color = textColor)
         }
     }
-
 }
 
 
@@ -205,10 +155,7 @@ fun CalcKeyboard(parentViewModel: KeyPressHandler) {
     val keys = remember { mutableStateListOf<Key>() }
     Column {
         SecondaryFuncBar(parentViewModel, keys.toTypedArray())
-        VerticalPager(
-            state = pagerState,
-            modifier = Modifier.aspectRatio(1.5f)
-        ) { page ->
+        VerticalPager(state = pagerState, modifier = Modifier.aspectRatio(1.5f)) { page ->
             when (page) {
                 0 -> Variables(parentViewModel)
                 1 -> SimplestOperations(parentViewModel, keys)
@@ -221,95 +168,51 @@ fun CalcKeyboard(parentViewModel: KeyPressHandler) {
 
 @Composable
 fun Variables(parentViewModel: KeyPressHandler) {
-    val keys = ('a'..'z').toList()
+    val keys = ('a'..'z').chunked(4)
     LazyRow(modifier = Modifier.fillMaxSize()) {
-        items((keys.size + 3) / 4) { colInd ->
+        items(keys.size) { rowInd ->
+            val row = keys[rowInd]
             Column(modifier = Modifier.fillMaxHeight()) {
-                repeat(4) { rowInd ->
-                    val index = colInd * 4 + rowInd
-                    if (index < keys.size) {
-                        val key = keys[index]
-                        Button(
-                            onClick = { parentViewModel.onKeyPress(key.toString()) },
-                            modifier = Modifier
-                                .background(MaterialTheme.colorScheme.background)
-                                .fillMaxWidth()
-                                .height(16.666f.vw())
-                                .padding(0.dp)
-                                .aspectRatio(1f),
-
-                            contentPadding = PaddingValues(0.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.background,
-                                contentColor = MaterialTheme.colorScheme.tertiary
-                            )// Remove extra padding
-                        ) {
-                            Text(
-                                key.toString(),
-                                fontSize = 20.sp,
-                                color = MaterialTheme.colorScheme.tertiary
-                            )
-                        }
-                    }
+                row.forEach { key ->
+                    KeyButton(
+                        parentViewModel,
+                        Key.VARIABLE.variable(key)[9].toString(),
+                        MaterialTheme.colorScheme.background,
+                        MaterialTheme.colorScheme.tertiary
+                    )
                 }
             }
         }
     }
-
 }
 
 
 @Composable
 fun Functions(parentViewModel: KeyPressHandler) {
-    val keys = FunKey.entries.toTypedArray()
+    val keys = FunKey.entries.toList().chunked(4)
 
     LazyRow(modifier = Modifier.fillMaxSize()) {
-        items((keys.size + 3) / 4) { colInd ->
-            Column(modifier = Modifier.fillMaxHeight()) {
-                repeat(4) { rowInd ->
-                    val index = colInd * 4 + rowInd
-                    if (index < keys.size) {
-                        val key = keys[index]
+        items(keys.size) { rowInd ->
+            val row = keys[rowInd]
 
-                        if (key.iconType is IconType.Text) {
-                            Button(
-                                onClick = { parentViewModel.onKeyPress(key.keyName) },
-                                modifier = Modifier
-                                    .background(MaterialTheme.colorScheme.background)
-                                    .fillMaxWidth()
-                                    .height(16.666f.vw())
-                                    .padding(0.dp)
-                                    .aspectRatio(1f),
-                                shape = CutCornerShape(0.dp),
-                                contentPadding = PaddingValues(0.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.background,
-                                    contentColor = MaterialTheme.colorScheme.tertiary
-                                )
-                            ) {
-                                Text(
-                                    key.iconType.text,
-                                    fontSize = 18.sp,
-                                    color = MaterialTheme.colorScheme.tertiary
-                                )
-                            }
-                        } else if (key.iconType is IconType.Icon) {
-                            Button(
-                                onClick = { parentViewModel.onKeyPress(key.keyName) },
-                                shape = CutCornerShape(0.dp),
-                                modifier = Modifier
-                                    .background(MaterialTheme.colorScheme.background)
-                                    .fillMaxWidth()
-                                    .height(16.vw())
-                                    .padding(0.dp)
-                                    .aspectRatio(1f),
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = key.iconType.id),
-                                    contentDescription = key.keyName,
-                                    tint = MaterialTheme.colorScheme.tertiary
-                                )
-                            }
+            Column(modifier = Modifier.fillMaxHeight()) {
+                row.forEach { key ->
+                    when (val iconType = key.iconType) {
+                        is IconType.Text -> KeyButton(
+                            parentViewModel = parentViewModel,
+                            keyName = key.keyName,
+                            bgColor = MaterialTheme.colorScheme.background,
+                            textColor = MaterialTheme.colorScheme.onBackground,
+                            iconId = null
+                        )
+                        is IconType.Icon -> IconButton(
+                            onClick = { parentViewModel.onKeyPress(key.keyName) },
+                        ) {
+                            Icon(
+                                painter = painterResource(id = iconType.id),
+                                contentDescription = key.keyName,
+                                tint = MaterialTheme.colorScheme.onBackground
+                            )
                         }
                     }
                 }
@@ -323,63 +226,46 @@ fun Functions(parentViewModel: KeyPressHandler) {
 @Composable
 fun SimplestOperations(parentViewModel: KeyPressHandler, secondaryKeys: SnapshotStateList<Key>) {
     Row {
-        val definiteKeys = arrayOf(
+        val definiteKeys = listOf(
             Key.NUMBER.number(7), Key.NUMBER.number(8), Key.NUMBER.number(9), Key.DIVIDE.keyIcon,
             Key.NUMBER.number(4), Key.NUMBER.number(5), Key.NUMBER.number(6), Key.MULTIPLY.keyIcon,
             Key.NUMBER.number(1), Key.NUMBER.number(2), Key.NUMBER.number(3), Key.MINUS.keyIcon,
             Key.NUMBER.number(0), Key.DOT.keyIcon, Key.DOUBLE_O.keyIcon, Key.PLUS.keyIcon
         )
-        val indefiniteKeys = arrayOf(
+
+        val indefiniteKeys = listOf(
             arrayOf(Key.FRACTION, Key.FRACTION_IMPROPER),
             arrayOf(Key.GREATER, Key.GREATER_EQUALS, Key.LESS_EQUALS, Key.LESS),
             arrayOf(Key.ROOT_SQUARE, Key.ROOT_CUBIC, Key.ROOT),
             arrayOf(Key.DEGREE_SQUARE, Key.DEGREE_CUBIC, Key.DEGREE),
             arrayOf(Key.PI, Key.PI_DIV_2, Key.PI_DIV_3),
             arrayOf(Key.PERCENT, Key.REMAINDER),
-            arrayOf(Key.BRACKETS, Key.ABSOLUTE),
         )
+
         Column(
-            modifier = Modifier
-                .weight(2f)
+            modifier = Modifier.weight(2f)
         ) {
-            repeat(4) { rowIndex ->
+            definiteKeys.chunked(4).forEach { row ->
                 Row {
-                    repeat(4) { colIndex ->
-                        val key = definiteKeys[rowIndex * 4 + colIndex]
-                        Button(
-                            onClick = { parentViewModel.onKeyPress(key) },
-                            modifier = Modifier
-                                .background(MaterialTheme.colorScheme.background)
-                                .height(16.666f.vw())
-                                .padding(0.dp)
-                                .aspectRatio(1f),
-                            shape = CutCornerShape(0.dp),
-                            contentPadding = PaddingValues(0.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.background,
-                                contentColor = MaterialTheme.colorScheme.tertiary
-                            )
-                        ) {
-                            Text(
-                                key.removePrefix("number/"),
-                                color = MaterialTheme.colorScheme.tertiary,
-                                fontSize = 20.sp
-                            )
-                        }
+                    row.forEach { key ->
+                        KeyButton(
+                            parentViewModel = parentViewModel,
+                            keyName = key.replace("number/", ""),
+                            bgColor = MaterialTheme.colorScheme.background,
+                            textColor = MaterialTheme.colorScheme.tertiary,
+                        )
                     }
                 }
             }
         }
-        Column(
-            modifier = Modifier
-                .weight(1f)
-        ) {
-            repeat(3) { colIndex ->
-                Row {
-                    repeat(2) { rowIndex ->
-                        val keys = indefiniteKeys[colIndex * 2 + rowIndex]
-                        val mainKey = keys[0]
 
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            indefiniteKeys.chunked(2).forEach { rowKeys ->
+                Row {
+                    rowKeys.forEach { keys ->
+                        val mainKey = keys[0]
                         Box(
                             modifier = Modifier
                                 .background(MaterialTheme.colorScheme.background)
@@ -400,18 +286,17 @@ fun SimplestOperations(parentViewModel: KeyPressHandler, secondaryKeys: Snapshot
                             Text(
                                 mainKey.keyIcon,
                                 color = MaterialTheme.colorScheme.primary,
-                                fontSize = 20.sp
+                                fontSize = 18.sp
                             )
                         }
                     }
-
                 }
-
-
             }
+
             Row {
-                val keys = indefiniteKeys.last()
+                val keys = arrayOf(Key.BRACKETS, Key.ABSOLUTE)
                 val mainKey = keys[0]
+
                 Box(
                     modifier = Modifier
                         .background(MaterialTheme.colorScheme.background)
@@ -435,21 +320,19 @@ fun SimplestOperations(parentViewModel: KeyPressHandler, secondaryKeys: Snapshot
                         fontSize = 20.sp
                     )
                 }
-
-                Button(
-                    onClick = { parentViewModel.onKeyPress(Key.EQUALS.keyName) },
+                Box(
                     modifier = Modifier
-                        .background(MaterialTheme.colorScheme.background)
+                        .background(MaterialTheme.colorScheme.primary)
                         .height(16.666f.vw())
                         .padding(0.dp)
-                        .aspectRatio(1f),
-
-                    contentPadding = PaddingValues(0.dp),
-                    shape = CutCornerShape(0.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.tertiary,
-                    )
+                        .aspectRatio(1f)
+                        .combinedClickable(
+                            onClick = {
+                                parentViewModel.onKeyPress(Key.EQUALS.keyName)
+                            },
+                            onLongClick = {}
+                        ),
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
                         Key.EQUALS.keyIcon,

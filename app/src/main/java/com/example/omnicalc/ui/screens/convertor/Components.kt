@@ -50,13 +50,12 @@ fun UnitSelectorBar(type: Measurement.Type) {
     var expanded1 by remember { mutableStateOf(false) }
     var expanded2 by remember { mutableStateOf(false) }
     var buttonSwitched by remember { mutableStateOf(false) }
-    var selected1 by remember { mutableStateOf(type.getUnits()[0]) }
-    var selected2 by remember { mutableStateOf(type.getUnits()[1]) }
+    var selected1 by remember { mutableStateOf(options[0]) }
+    var selected2 by remember { mutableStateOf(options[1]) }
+
     Row {
         ExposedDropdownMenuBox(
-            modifier = Modifier
-                .width(41.666f.vw())
-                .height(16.666f.vw()),
+            modifier = Modifier.unitSelectorBox(),
             expanded = expanded1,
             onExpandedChange = { expanded1 = it }
         ) {
@@ -77,13 +76,13 @@ fun UnitSelectorBar(type: Measurement.Type) {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        modifier = Modifier.fillMaxWidth(),
                         text = selected1.unitName,
                         style = FarywaveTypo.bodyLarge.merge(
                             textAlign = TextAlign.Start,
                             fontSize = 16.sp
                         ),
                         color = MaterialTheme.colorScheme.background,
+                        modifier = Modifier.fillMaxWidth(),
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -103,7 +102,8 @@ fun UnitSelectorBar(type: Measurement.Type) {
                         },
                         text = {
                             Text(
-                                item.unitName, fontSize = 16.sp,
+                                item.unitName,
+                                fontSize = 16.sp,
                                 textAlign = TextAlign.Start,
                                 modifier = Modifier.fillMaxWidth()
                             )
@@ -112,6 +112,7 @@ fun UnitSelectorBar(type: Measurement.Type) {
                 }
             }
         }
+
         Button(
             onClick = { buttonSwitched = !buttonSwitched },
             modifier = Modifier
@@ -132,10 +133,9 @@ fun UnitSelectorBar(type: Measurement.Type) {
                 tint = MaterialTheme.colorScheme.background
             )
         }
+
         ExposedDropdownMenuBox(
-            modifier = Modifier
-                .width(41.666f.vw())
-                .height(16.666f.vw()),
+            modifier = Modifier.unitSelectorBox(),
             expanded = expanded2,
             onExpandedChange = { expanded2 = it }
         ) {
@@ -156,13 +156,13 @@ fun UnitSelectorBar(type: Measurement.Type) {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        modifier = Modifier.fillMaxWidth(),
                         text = selected2.unitName,
                         style = FarywaveTypo.bodyLarge.merge(
                             textAlign = TextAlign.End,
                             fontSize = 16.sp
                         ),
                         color = MaterialTheme.colorScheme.background,
+                        modifier = Modifier.fillMaxWidth(),
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -182,7 +182,8 @@ fun UnitSelectorBar(type: Measurement.Type) {
                         },
                         text = {
                             Text(
-                                item.unitName, fontSize = 16.sp,
+                                item.unitName,
+                                fontSize = 16.sp,
                                 textAlign = TextAlign.End,
                                 modifier = Modifier.fillMaxWidth()
                             )
@@ -194,6 +195,10 @@ fun UnitSelectorBar(type: Measurement.Type) {
     }
 }
 
+@Composable
+private fun Modifier.unitSelectorBox() = this
+    .width(41.666f.vw())
+    .height(16.666f.vw())
 
 @Preview
 @Composable

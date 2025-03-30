@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -32,75 +33,60 @@ import com.example.omnicalc.utils.vw
 
 @Composable
 fun ConvertorSelectorScreen(navController: NavController) {
-    val measurements = Measurement.Type.entries.toTypedArray()
+    val measurements = Measurement.Type.entries.toList()
     val padding = 5.vw()
+
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
         val (addButton) = createRefs()
+
         LazyColumn(horizontalAlignment = Alignment.CenterHorizontally) {
-            items(measurements.size / 2) { colInd ->
+            items(measurements.chunked(2)) { row ->
                 Spacer(modifier = Modifier.padding(padding))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    repeat(2) { rowInd ->
-                        val index = colInd * 2 + rowInd
-                        if (index < measurements.size) {
-                            val unit = measurements[index]
-                            MeasurementUnitCard(unit, navController)
-                            if (rowInd != 1) Spacer(modifier = Modifier.padding(padding))
-                        }
+                    row.forEachIndexed { index, unit ->
+                        MeasurementUnitCard(unit, navController)
+                        if (index == 0 && row.size != 1) Spacer(modifier = Modifier.padding(padding))
                     }
                 }
             }
-            if (measurements.size % 2 != 0) {
-                val last = measurements.last()
-                item {
-                    Spacer(modifier = Modifier.padding(padding))
-                    MeasurementUnitCard(last, navController)
-                }
-            }
-            item {
-                Spacer(Modifier.height(38.466f.vw()))
-            }
+
+            item { Spacer(Modifier.height(38.466f.vw())) }
         }
-        Box(
-            Modifier
-                .padding(10.9f.vw())
-                .constrainAs(addButton) {
-                    end.linkTo(parent.end)
-                    bottom.linkTo(parent.bottom)
-                }) {
-            Button(
-                onClick = {},
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.primary)
-                    .height(16.666f.vw())
-                    .aspectRatio(2f),
-                shape = CutCornerShape(0.dp),
-                contentPadding = PaddingValues(0.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.tertiary
-                )
-            ) {
-                Row (verticalAlignment = Alignment.CenterVertically){
-                    Text(
-                        "New",
-                        color = MaterialTheme.colorScheme.tertiary,
-                        fontSize = 24.sp
-                    )
-                    Spacer(Modifier.width(4.vw()))
-                    Text(
-                        "+",
-                        color = MaterialTheme.colorScheme.tertiary,
-                        fontSize = 30.sp
-                    )
-                }
+
+        FloatingAddButton(modifier = Modifier.constrainAs(addButton) {
+            end.linkTo(parent.end)
+            bottom.linkTo(parent.bottom)
+        })
+    }
+}
+
+@Composable
+fun FloatingAddButton(modifier: Modifier) {
+    Box(modifier.padding(10.9f.vw())) {
+        Button(
+            onClick = {},
+            modifier = Modifier
+                .height(16.666f.vw())
+                .aspectRatio(2f),
+            shape = CutCornerShape(0.dp),
+            contentPadding = PaddingValues(0.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.tertiary
+            )
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("New", fontSize = 24.sp, color = MaterialTheme.colorScheme.tertiary)
+                Spacer(Modifier.width(4.vw()))
+                Text("+", fontSize = 30.sp, color = MaterialTheme.colorScheme.tertiary)
             }
         }
     }
 }
+
 
 @Preview
 @Composable

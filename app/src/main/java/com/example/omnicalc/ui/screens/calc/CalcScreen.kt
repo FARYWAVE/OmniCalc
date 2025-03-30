@@ -26,9 +26,7 @@ fun CalcScreen() {
         ) {
 
         }
-        Column {
-            CalcKeyboard(viewModel)
-        }
+        CalcKeyboard(viewModel)
     }
 }
 

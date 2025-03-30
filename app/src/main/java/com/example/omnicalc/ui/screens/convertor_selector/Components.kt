@@ -24,28 +24,24 @@ import com.example.omnicalc.ui.navigation.Screen
 import com.example.omnicalc.utils.Measurement
 import com.example.omnicalc.utils.vw
 
+
 @Composable
 fun MeasurementUnitCard(type: Measurement.Type, navController: NavController) {
-    Button(onClick = {navController.navigate(Screen.Convertor.withId(type.typeName))},
+    Button(
+        onClick = { navController.navigate(Screen.Convertor.withId(type.typeName)) },
         modifier = Modifier
-            .background(MaterialTheme.colorScheme.secondary)
             .height(35.vw())
             .aspectRatio(1f),
         shape = CutCornerShape(0.dp),
         contentPadding = PaddingValues(0.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.secondary,
-            contentColor = MaterialTheme.colorScheme.tertiary
-        )) {
-        val icon = painterResource(type.iconResId)
+        colors = buttonStyle()
+    ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.secondary)
+            verticalArrangement = Arrangement.Center
         ) {
             Icon(
-                painter = icon,
+                painter = painterResource(type.iconResId),
                 tint = MaterialTheme.colorScheme.tertiary,
                 contentDescription = type.typeName
             )
@@ -56,7 +52,11 @@ fun MeasurementUnitCard(type: Measurement.Type, navController: NavController) {
                 modifier = Modifier.padding(10.dp)
             )
         }
-
-
     }
 }
+
+@Composable
+private fun buttonStyle() = ButtonDefaults.buttonColors(
+    containerColor = MaterialTheme.colorScheme.secondary,
+    contentColor = MaterialTheme.colorScheme.tertiary
+)
