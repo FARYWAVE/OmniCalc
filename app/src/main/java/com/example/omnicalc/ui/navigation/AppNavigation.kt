@@ -1,7 +1,13 @@
 package com.example.omnicalc.ui.navigation
 
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
@@ -20,10 +26,16 @@ import com.example.omnicalc.ui.screens.convertor.ConvertorScreen
 import com.example.omnicalc.ui.screens.convertor_selector.ConvertorSelectorScreen
 import com.example.omnicalc.ui.screens.function_selector.FunctionSelectorScreen
 import androidx.compose.material3.*
+import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import com.example.omnicalc.MainActivity
+import com.example.omnicalc.ui.screens.settings.ColorPickerDialog
 import com.example.omnicalc.ui.screens.settings.SettingsDrawer
+import com.example.omnicalc.utils.vw
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import androidx.core.net.toUri
 
 
 @Composable
@@ -31,13 +43,13 @@ fun AppNavigation() {
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-
-    NavigationDrawer(drawerState = drawerState, scope = scope) {
+    NavigationDrawer(drawerState = drawerState, scope = scope, navController = navController) {
         Scaffold(
             topBar = {
-                TopAppBar(navController, onSettingsClick = {
+                TopAppBar(navController = navController,
+                    onSettingsClick = {
                     scope.launch { drawerState.open() }
-                })
+                    })
             },
             content = { paddingValues ->
                 AppNavHost(navController, paddingValues)
@@ -51,14 +63,18 @@ fun AppNavigation() {
 private fun NavigationDrawer(
     drawerState: DrawerState,
     scope: CoroutineScope,
+    navController: NavHostController,
     content: @Composable () -> Unit
 ) {
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
         ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = {
-                ModalDrawerSheet {
-                    SettingsDrawer(onClose = { scope.launch { drawerState.close() } })
+                ModalDrawerSheet(
+                    modifier = Modifier.background(MaterialTheme.colorScheme.secondary)
+                        .width(80.vw()),
+                ) {
+                    SettingsDrawer(onClose = { scope.launch { drawerState.close() } }, navController)
                 }
             },
             content = {
@@ -79,13 +95,16 @@ private fun AppNavHost(navController: NavHostController, paddingValues: PaddingV
         modifier = Modifier.padding(paddingValues)
     ) {
         composable(Screen.Calc.route) { CalcScreen() }
-        composable(Screen.FunctionSelector.route) { FunctionSelectorScreen() }
+        composable(Screen.FunctionSelector.route) { FunctionSelectorScreen()}
         composable(Screen.ConvertorSelector.route) { ConvertorSelectorScreen(navController) }
         composable(
             route = Screen.Convertor.route,
             arguments = listOf(navArgument("id") { type = NavType.StringType })
         ) { backStackEntry ->
             ConvertorScreen(backStackEntry.arguments?.getString("id") ?: "unknown")
+        }
+        dialog(Screen.ColorPickerDialog.route) {
+            ColorPickerDialog(navController)
         }
     }
 }

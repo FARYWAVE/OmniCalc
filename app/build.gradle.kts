@@ -40,6 +40,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.colorpicker.compose)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.material3)
     implementation(libs.ui)
@@ -55,6 +56,7 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.android)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.appcompat)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

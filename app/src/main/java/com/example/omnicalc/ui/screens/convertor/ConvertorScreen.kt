@@ -27,7 +27,7 @@ fun ConvertorScreen(id: String) {
         ) {
 
         }
-        CalcKeyboard(viewModel)
+        CalcKeyboard()
     }
 }
 

@@ -1,5 +1,6 @@
 [versions]
 agp = "8.9.0"
+colorpickerCompose = "1.0.0"
 constraintlayoutCompose = "1.1.1"
 datastorePreferences = "1.1.4"
 foundation = "1.7.8"
@@ -23,6 +24,7 @@ constraintlayout = "2.2.1"
 runtime = "1.7.8"
 ui = "1.7.8"
 uiToolingPreview = "1.7.8"
+appcompat = "1.7.0"
 
 [libraries]
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
@@ -35,6 +37,7 @@ androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-ru
 androidx-material-icons-core = { module = "androidx.compose.material:material-icons-core", version.ref = "materialIconsCore" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 androidx-runtime = { module = "androidx.compose.runtime:runtime", version.ref = "runtime" }
+colorpicker-compose = { module = "com.github.skydoves:colorpicker-compose", version.ref = "colorpickerCompose" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -54,6 +57,7 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
 ui = { module = "androidx.compose.ui:ui", version.ref = "ui" }
 ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "uiToolingPreview" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

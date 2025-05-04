@@ -11,22 +11,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.omnicalc.ui.components.CalcKeyboard
+import com.example.omnicalc.ui.components.display.Display
 
 @Composable
 fun CalcScreen() {
-    val viewModel: CalcViewModel = viewModel()
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Bottom
     ) {
-        ConstraintLayout(
+        Column (
             Modifier
                 .weight(1f)
                 .fillMaxWidth()
         ) {
-
+            Display()
         }
-        CalcKeyboard(viewModel)
+        CalcKeyboard()
     }
 }
 

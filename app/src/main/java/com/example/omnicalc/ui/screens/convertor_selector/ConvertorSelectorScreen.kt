@@ -68,9 +68,7 @@ fun FloatingAddButton(modifier: Modifier) {
     Box(modifier.padding(10.9f.vw())) {
         Button(
             onClick = {},
-            modifier = Modifier
-                .height(16.666f.vw())
-                .aspectRatio(2f),
+            modifier = Modifier,
             shape = CutCornerShape(0.dp),
             contentPadding = PaddingValues(0.dp),
             colors = ButtonDefaults.buttonColors(
@@ -78,7 +76,7 @@ fun FloatingAddButton(modifier: Modifier) {
                 contentColor = MaterialTheme.colorScheme.tertiary
             )
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(modifier = Modifier.padding(4.vw()), verticalAlignment = Alignment.CenterVertically) {
                 Text("New", fontSize = 24.sp, color = MaterialTheme.colorScheme.tertiary)
                 Spacer(Modifier.width(4.vw()))
                 Text("+", fontSize = 30.sp, color = MaterialTheme.colorScheme.tertiary)
