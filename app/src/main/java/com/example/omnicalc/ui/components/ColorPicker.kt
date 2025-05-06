@@ -32,8 +32,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.omnicalc.utils.vh
 import com.example.omnicalc.utils.vw
-import com.github.skydoves.colorpicker.compose.*
-
 
 @Composable
 fun ColorPicker(

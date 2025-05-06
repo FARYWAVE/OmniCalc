@@ -1,19 +1,18 @@
-package com.example.omnicalc.ui.components.display
+package com.example.omnicalc.utils
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import com.example.omnicalc.ui.components.Function
-import com.example.omnicalc.ui.components.Function.*
+import com.example.omnicalc.ui.components.display.Function
+import com.example.omnicalc.ui.components.display.Function.*
 import java.util.Stack
 import kotlin.math.*
 
 
 open class Expression(
     val type: Function,
-    ) {
+) {
     private var parentContainer: ExpressionContainer? = null
-    val fontSize: Int = parentContainer?.fontSize?: 20
     val numberOfInputs: Int = type.numberOfInputs
     val containers = Array(numberOfInputs) {
         ExpressionContainer(parentExpression = this, parentContainer = parentContainer)
@@ -107,8 +106,25 @@ open class Expression(
         }
     }
 
+    fun removeCaret() {
+        containers.forEach {
+            it.removeCaret()
+        }
+    }
+
     fun moveCaretAfter(hash: Int) {
         containers.forEach { it.moveCaretAfter(hash) }
+    }
+
+    fun moveCaretIn(hash: Int, start: Boolean = true) {
+        containers.forEach {
+            it.removeCaret()
+            it.moveCaretIn(hash, start)
+            if (it.hash == hash) {
+                if (start) it.container.add(0, Expression(Function.CARET))
+                else it.container.add(Expression(Function.CARET))
+            }
+        }
     }
 
     fun moveCaretBefore(hash: Int) {
@@ -122,26 +138,42 @@ open class Expression(
     }
 
     fun stepBackwards() {
-        containers.forEach { it -> it.stepBackwards() }
+        for (container in containers) {
+            if (container.stepBackwards()) break
+        }
     }
 
+    override fun toString(): String {
+        if (containers.size == 0) return type.functionName
+        var result = "${type.functionName}($hash){"
+        repeat(numberOfInputs) {
+            result += "$it(${containers[it].hash}): ${containers[it]}"
+        }
+        //Log.d("Expression State", result)
+        return result + "}"
+    }
 }
 
-class NumericExpression(val value: Char) : Expression(Function.NUMBER)
+class NumericExpression(val value: Char) : Expression(Function.NUMBER) {
+    override fun toString(): String {
+        return value.toString()
+    }
+}
 
 class ExpressionContainer(
     val container: SnapshotStateList<Expression> = mutableStateListOf(),
     var parentExpression: Expression? = null,
     var parentContainer: ExpressionContainer? = null,
-    val fontSize: Int = parentExpression?.fontSize?: 20
 ) {
     val hash = Expression.getNewHash()
+    val caret = Expression(CARET)
 
     init {
         for (item in container) {
             item.setParentContainer(this)
         }
     }
+
 
     fun solve(): Double {
         val values = Stack<Double>()
@@ -160,7 +192,10 @@ class ExpressionContainer(
 
             if (expr.type == Function.NUMBER) {
                 if (prevWasValue) {
-                    while (operators.isNotEmpty() && precedence(operators.peek()) >= precedence(Function.MULTIPLY)) {
+                    while (operators.isNotEmpty() && precedence(operators.peek()) >= precedence(
+                            Function.MULTIPLY
+                        )
+                    ) {
                         applyOperator(values, operators.pop())
                     }
                     operators.push(Function.MULTIPLY)
@@ -262,7 +297,10 @@ class ExpressionContainer(
     }
 
 
-    fun updateParentContainer(newParentExpression: Expression, newParentContainer: ExpressionContainer?) {
+    fun updateParentContainer(
+        newParentExpression: Expression,
+        newParentContainer: ExpressionContainer?
+    ) {
         parentExpression = newParentExpression
         parentContainer = newParentContainer
         for (item in container) {
@@ -294,7 +332,7 @@ class ExpressionContainer(
         val index = container.indexOf(expression)
         if (index != -1) {
             container.removeAt(index)
-            container.add(index, Expression(Function.CARET).apply { setParentContainer(this@ExpressionContainer) })
+            container.add(index, caret.apply { setParentContainer(this@ExpressionContainer) })
         }
     }
 
@@ -303,42 +341,88 @@ class ExpressionContainer(
         if (caretIndex != -1) {
             val expression = when (type) {
                 Function.ROOT_SQUARE -> {
-                    val exp = Expression(Function.ROOT)
-                    exp.setValues(0, ExpressionContainer(mutableStateListOf(NumericExpression('2'))))
+                    val exp = Expression(ROOT)
+                    exp.setValues(
+                        0,
+                        ExpressionContainer(mutableStateListOf(NumericExpression('2')))
+                    )
                     exp
                 }
 
                 Function.ROOT_CUBIC -> {
-                    val exp = Expression(Function.ROOT)
-                    exp.setValues(0, ExpressionContainer(mutableStateListOf(NumericExpression('3'))))
+                    val exp = Expression(ROOT)
+                    exp.setValues(
+                        0,
+                        ExpressionContainer(mutableStateListOf(NumericExpression('3')))
+                    )
                     exp
                 }
 
+                Function.POWER_SQUARE -> {
+                    val exp = Expression(POWER)
+                    exp.setValues(
+                        0,
+                        ExpressionContainer(mutableStateListOf(NumericExpression('2')))
+                    )
+                    exp
+                }
+
+                Function.POWER_CUBIC -> {
+                    val exp = Expression(POWER)
+                    exp.setValues(
+                        0,
+                        ExpressionContainer(mutableStateListOf(NumericExpression('3')))
+                    )
+                    exp
+                }
 
                 Function.NUMBER -> NumericExpression(value!!)
                 Function.LN -> {
-                    val exp = Expression(Function.LOG)
-                    exp.setValues(0, ExpressionContainer(mutableStateListOf(Expression(Function.E))))
+                    val exp = Expression(LOG)
+                    exp.setValues(
+                        0,
+                        ExpressionContainer(mutableStateListOf(Expression(Function.E)))
+                    )
                     exp
                 }
 
                 Function.LG -> {
-                    val exp = Expression(Function.LOG)
-                    exp.setValues(0, ExpressionContainer(mutableStateListOf(NumericExpression('1'), NumericExpression('0'))))
+                    val exp = Expression(LOG)
+                    exp.setValues(
+                        0,
+                        ExpressionContainer(
+                            mutableStateListOf(
+                                NumericExpression('1'),
+                                NumericExpression('0')
+                            )
+                        )
+                    )
                     exp
                 }
 
                 Function.PI_DIV_2 -> {
-                    val exp = Expression(Function.FRACTION)
-                    exp.setValues(0, ExpressionContainer(mutableStateListOf(Expression(Function.PI))))
-                    exp.setValues(1, ExpressionContainer(mutableStateListOf(NumericExpression('2'))))
+                    val exp = Expression(FRACTION)
+                    exp.setValues(
+                        0,
+                        ExpressionContainer(mutableStateListOf(Expression(Function.PI)))
+                    )
+                    exp.setValues(
+                        1,
+                        ExpressionContainer(mutableStateListOf(NumericExpression('2')))
+                    )
                     exp
                 }
 
                 Function.PI_DIV_3 -> {
-                    val exp = Expression(Function.FRACTION)
-                    exp.setValues(0, ExpressionContainer(mutableStateListOf(Expression(Function.PI))))
-                    exp.setValues(1, ExpressionContainer(mutableStateListOf(NumericExpression('3'))))
+                    val exp = Expression(FRACTION)
+                    exp.setValues(
+                        0,
+                        ExpressionContainer(mutableStateListOf(Expression(Function.PI)))
+                    )
+                    exp.setValues(
+                        1,
+                        ExpressionContainer(mutableStateListOf(NumericExpression('3')))
+                    )
                     exp
                 }
 
@@ -348,7 +432,10 @@ class ExpressionContainer(
             container.add(caretIndex, expression)
             if (type.inputIndex != -1) {
                 container.removeAll { it.type == Function.CARET }
-                expression.setValues(type.inputIndex, ExpressionContainer(mutableStateListOf(Expression(Function.CARET))))
+                expression.setValues(
+                    type.inputIndex,
+                    ExpressionContainer(mutableStateListOf(Expression(CARET)))
+                )
             }
         } else {
             container.forEach { it.add(type, value) }
@@ -359,8 +446,24 @@ class ExpressionContainer(
         repeat(container.size) { i ->
             container[i].moveCaretAfter(hash)
             if (container[i].hash == hash) {
-                container.add(i + 1, Expression(Function.CARET))
+                container.add(i + 1, caret)
             }
+        }
+    }
+
+    fun moveCaretIn(hash:Int, start: Boolean = true) {
+        container.forEach {
+            it.moveCaretIn(hash, start)
+        }
+    }
+
+    fun removeCaret() {
+        repeat(container.size) { i ->
+            if (container[i].type == Function.CARET) {
+                container.removeAt(i)
+                return
+            }
+            container[i].removeCaret()
         }
     }
 
@@ -368,12 +471,13 @@ class ExpressionContainer(
         repeat(container.size) { i ->
             container[i].moveCaretBefore(hash)
             if (container[i].hash == hash) {
-                container.add(i, Expression(Function.CARET))
+                container.add(i, caret)
+                return
             }
         }
     }
 
-    fun stepForward() : Boolean {
+    fun stepForward(): Boolean {
         val caretIndex = container.indexOfFirst { it.type == Function.CARET }
         if (caretIndex == -1) {
             for (i in 0 until container.size) {
@@ -382,17 +486,66 @@ class ExpressionContainer(
             return false
         } else {
             if (caretIndex == container.size - 1) {
-                if(parentExpression == null) return true
-                if (parentExpression!!.containers.indexOf(this) == parentExpression!!.containers.size) {
+                if (parentExpression == null) return true
+                val index = parentExpression!!.containers.indexOf(this)
+                if (index == parentExpression!!.containers.size - 1) {
                     container.removeAt(caretIndex)
                     parentContainer!!.moveCaretAfter(parentExpression!!.hash)
+                } else {
+                    //Log.d("Caret", "Has right direction")
+                    container.removeAt(caretIndex)
+                    parentExpression!!.containers[index + 1].container.add(0, caret)
                 }
+            } else {
+                if (container[caretIndex + 1].numberOfInputs != 0)
+                    container[caretIndex + 1].containers[0].container.add(0, caret)
+                else
+                    container.add(caretIndex + 2, caret)
+                container.removeAt(caretIndex)
             }
         }
         return true
     }
 
-    fun stepBackwards() {
+    fun stepBackwards(): Boolean {
+        val caretIndex = container.indexOfFirst { it.type == Function.CARET }
+        if (caretIndex == -1) {
+            for (i in 0 until container.size) {
+                container[i].stepBackwards()
+            }
+            return false
+        } else {
+            if (caretIndex == 0) {
+                if (parentExpression == null) return true
+                val index = parentExpression!!.containers.indexOf(this)
+                if (index == 0) {
+                    container.removeAt(caretIndex)
+                    parentContainer!!.moveCaretBefore(parentExpression!!.hash)
+                } else {
+                    Log.d("Caret", "faag")
+                    container.removeAt(caretIndex)
+                    parentExpression!!.containers[index - 1].container.add(caret)
+                }
+            } else {
+                if (container[caretIndex - 1].numberOfInputs != 0) {
+                    container[caretIndex - 1].containers.last().container.add(caret)
+                    container.removeAt(caretIndex)
+                } else {
+                    container.add(caretIndex - 1, caret)
+                    container.removeAt(caretIndex + 1)
+                }
 
+            }
+        }
+        return true
+    }
+
+    override fun toString(): String {
+        var result = ""
+        container.forEach {
+            result += "$it "
+        }
+        //Log.d("Container State", result)
+        return result
     }
 }

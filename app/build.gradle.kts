@@ -3,6 +3,11 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
+buildscript {
+    dependencies {
+        classpath("com.android.tools.build:gradle:8.7.2")
+    }
+}
 
 android {
     namespace = "com.example.omnicalc"

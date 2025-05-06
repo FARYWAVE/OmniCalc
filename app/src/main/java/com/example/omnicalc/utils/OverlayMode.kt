@@ -1,10 +1,9 @@
-package com.example.omnicalc.ui
+package com.example.omnicalc.utils
 
 import android.app.Activity
 import android.app.Service
 import android.content.Intent
 import android.graphics.PixelFormat
-import android.os.Build
 import android.os.IBinder
 import android.provider.Settings
 import android.view.MotionEvent

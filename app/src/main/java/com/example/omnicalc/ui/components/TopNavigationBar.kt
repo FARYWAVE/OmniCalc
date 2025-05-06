@@ -1,7 +1,6 @@
 package com.example.omnicalc.ui.components
 
 import android.app.Activity
-import android.app.PictureInPictureParams
 import androidx.annotation.DrawableRes
 import androidx.compose.ui.res.painterResource
 import androidx.compose.material3.*
@@ -10,8 +9,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.omnicalc.R
-import com.example.omnicalc.ui.LaunchOverlayMode
 import com.example.omnicalc.ui.navigation.Screen
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,8 +24,11 @@ fun TopAppBar(navController: NavController, onSettingsClick: () -> Unit) {
         ),
         title = { Text("") },
         navigationIcon = {
-            IconButton(onClick = {
-            }) {
+            IconButton(
+                onClick = {
+                    
+                }
+            ) {
                 Icon(painter = painterResource(id = R.drawable.overlay), contentDescription = "Overlay", tint = MaterialTheme.colorScheme.tertiary)
             }
         },

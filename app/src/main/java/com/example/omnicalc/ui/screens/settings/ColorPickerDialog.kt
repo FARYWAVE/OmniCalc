@@ -112,7 +112,7 @@ fun ColorPickerDialog(navController: NavController) {
                         Button(
                             shape = RoundedCornerShape(0.dp),
                             onClick = {
-                                viewModel.onPrimaryColorChanged(Color.hsv(hue, 1f, 1f))
+                                viewModel.onPrimaryColorChanged(Color.hsv(hue, 0.9f, 1f))
                                 navController.popBackStack()
                             },
                             colors = ButtonDefaults.buttonColors(

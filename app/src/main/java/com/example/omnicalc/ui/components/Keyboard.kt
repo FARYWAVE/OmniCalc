@@ -3,6 +3,7 @@ package com.example.omnicalc.ui.components
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,8 +15,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -23,7 +24,6 @@ import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,16 +45,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.omnicalc.R
-import com.example.omnicalc.ui.components.display.Caret
-import com.example.omnicalc.ui.components.display.Expression
-import com.example.omnicalc.ui.components.display.NumericExpression
-import com.example.omnicalc.ui.components.display.Operator
-import com.example.omnicalc.ui.components.display.SimpleExpression
 import com.example.omnicalc.ui.screens.MainViewModel
 import com.example.omnicalc.ui.screens.calc.CalcViewModel
 import com.example.omnicalc.ui.screens.settings.SettingsViewModel
 import com.example.omnicalc.utils.vw
-import kotlinx.coroutines.flow.last
+import com.example.omnicalc.ui.components.display.Function
 
 
 interface KeyPressHandler {
@@ -62,175 +57,7 @@ interface KeyPressHandler {
 }
 
 
-enum class Function(
-    var functionName: String,
-    val displayText: String,
-    val icon: Int? = null,
-    val numberOfInputs: Int = 0,
-    val inputIndex: Int = 0
-) {
-    // Cursor & Brackets
-    CARET("caret", "|", null, inputIndex = -1) {
-        @Composable
-        override fun Compose(expression: Expression) {
-            Caret(expression)
-        }
-    },
-    BRACKETS("brackets", "( )", null, 1),
-    ABSOLUTE("absolute", "| |", null, 1),
-
-    // Comparison
-    GREATER("greater", ">", null, inputIndex = -1) {
-        @Composable
-        override fun Compose(expression: Expression) {
-            Operator(expression, displayText)
-        }
-    },
-    GREATER_EQUALS("greater_equals", "≥", null, inputIndex = -1) {
-        @Composable
-        override fun Compose(expression: Expression) {
-            Operator(expression, displayText)
-        }
-    },
-    EQUALS("equals", "=", null, inputIndex = -1) {
-        @Composable
-        override fun Compose(expression: Expression) {
-            Operator(expression, displayText)
-        }
-    },
-    LESS_EQUALS("less_equals", "≤", null, inputIndex = -1) {
-        @Composable
-        override fun Compose(expression: Expression) {
-            Operator(expression, displayText)
-        }
-    },
-    LESS("less", "<", null, inputIndex = -1) {
-        @Composable
-        override fun Compose(expression: Expression) {
-            Operator(expression, displayText)
-        }
-    },
-
-    // Fractions & Roots
-    FRACTION("fraction", "½", null, 2),
-    ROOT_SQUARE("root_square", "√", null, inputIndex = 1),
-    ROOT_CUBIC("root_cubic", "∛", null, inputIndex = 1),
-    ROOT("root", "°√", null, 2, 0),
-
-    // Powers
-    POWER_SQUARE("power_square", "x²", null, inputIndex = -1),
-    POWER_CUBIC("power_cubic", "x³", null, inputIndex = -1),
-    POWER("power", "x°", null, 1, 1),
-
-    // Constants
-    PI("pi", "π", null, inputIndex = -1) {
-        @Composable
-        override fun Compose(expression: Expression) {
-            Operator(expression, displayText)
-        }
-    },
-    PI_DIV_2("pi_div_2", "π/2", null, inputIndex = -1),
-    PI_DIV_3("pi_div_3", "π/3", null, inputIndex = -1),
-    PERCENT("percent", "%", null, inputIndex = -1),
-    REMAINDER("remainder", "%", null, inputIndex = -1),
-
-    // Operators
-    PLUS("plus", "+", null, inputIndex = -1) {
-        @Composable
-        override fun Compose(expression: Expression) {
-            Operator(expression, displayText)
-        }
-    },
-    MINUS("minus", "-", null, inputIndex = -1) {
-        @Composable
-        override fun Compose(expression: Expression) {
-            Operator(expression, displayText)
-        }
-    },
-    MULTIPLY("multiply", "×", null, inputIndex = -1) {
-        @Composable
-        override fun Compose(expression: Expression) {
-            Operator(expression, displayText)
-        }
-    },
-    DIVIDE("divide", "÷", null, inputIndex = -1) {
-        @Composable
-        override fun Compose(expression: Expression) {
-            Operator(expression, displayText)
-        }
-    },
-    DOT("dot", ".", null) {
-        @Composable
-        override fun Compose(expression: Expression) {
-            Operator(expression, displayText)
-        }
-    },
-
-    // Input
-    NUMBER("number", "n", null, 0, -1),
-    VARIABLE("variable/{ch}", "ch", null, inputIndex = -1),
-    DOUBLE_O("double_o", "00", null),
-
-    // Controls
-    BACKSPACE("backspace", "", 0),
-    CLEAR("clear", "AC", null),
-
-    // Trigonometric Functions
-    SIN("sin", "sin", null, 1),
-    COS("cos", "cos", null, 1),
-    TAN("tan", "tan", null, 1),
-    COT("cot", "cot", null, 1),
-    SEC("sec", "sec", null, 1),
-    CSC("csc", "csc", null, 1),
-
-    // Arc Trig Functions
-    ARCSIN("arcsin", "arcsin", null, 1),
-    ARCCOS("arccos", "arccos", null, 1),
-    ARCTAN("arctan", "arctan", null, 1),
-    ARCCOT("arccot", "arccot", null, 1),
-    ARCSEC("arcsec", "arcsec", null, 1),
-    ARCCSC("arccsc", "arccsc", null, 1),
-
-    // Hyperbolic Functions
-    SINH("sinh", "sinh", null, 1),
-    COSH("cosh", "cosh", null, 1),
-    TANH("tanh", "tanh", null, 1),
-    COTH("coth", "coth", null, 1),
-
-    // Logarithmic & Exponential
-    LN("ln", "ln", null, inputIndex = 1),
-    LOG("log", "log", null, 2),
-    LG("lg", "lg", null, inputIndex = 1),
-    EXP("exp", "exp", null, 1, -1),
-
-    // Miscellaneous
-    FACTORIAL("factorial", "!", null, inputIndex = -1),
-    E("e", "e", null, inputIndex = -1) {
-        @Composable
-        override fun Compose(expression: Expression) {
-            Operator(expression, displayText)
-        }
-    };
-
-    @Composable
-    open fun Compose(expression: Expression) {
-        SimpleExpression(expression)
-    }
-
-    fun number(num: Int) : String{
-        return "number/$num"
-    }
-    fun variable(char: Char) = functionName.replace("{ch}", char.toString())
-
-    companion object {
-        fun fromFunctionName(name: String): Function? {
-            return entries.firstOrNull { it.functionName == name }
-        }
-    }
-}
-
-
-
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SecondaryFuncBar(mainViewModel: KeyPressHandler, keys: Array<Function>) {
     Row(
@@ -238,31 +65,103 @@ fun SecondaryFuncBar(mainViewModel: KeyPressHandler, keys: Array<Function>) {
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.secondary)
     ) {
-        KeyButton(
-            mainViewModel,
-            Function.CLEAR.displayText,
-            MaterialTheme.colorScheme.tertiary,
-            MaterialTheme.colorScheme.background,
-            functionName = Function.CLEAR.functionName
-        )
-        KeyButton(
-            mainViewModel,
-            "",
-            MaterialTheme.colorScheme.tertiary,
-            MaterialTheme.colorScheme.background,
-            R.drawable.backspace,
-            functionName = Function.BACKSPACE.functionName
-        )
+        Box(
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.tertiary)
+                .height(16.666f.vw())
+                .aspectRatio(1f)
+                .combinedClickable (
+                    onClick = {mainViewModel.onKeyPress(Function.BACKSPACE.functionName)},
+                    onLongClick = {mainViewModel.onKeyPress(Function.CLEAR.functionName)}
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                modifier = Modifier.offset(x = (-2).dp),
+                painter = painterResource(id = R.drawable.backspace),
+                contentDescription = Function.BACKSPACE.functionName,
+                tint = MaterialTheme.colorScheme.background
+            )
+        }
 
         keys.forEach { key ->
-            KeyButton(
-                mainViewModel,
-                key.displayText,
-                MaterialTheme.colorScheme.secondary,
-                MaterialTheme.colorScheme.primary,
-                key.icon,
-                functionName = key.functionName
-            )
+            when (key) {
+                Function.ROOT -> {
+                    Box(
+                        modifier = Modifier
+                            .background(MaterialTheme.colorScheme.secondary)
+                            .height(16.666f.vw())
+                            .aspectRatio(1f)
+                            .clickable {mainViewModel.onKeyPress(key.functionName)},
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "√",
+                            color = MaterialTheme.colorScheme.primary,
+                            fontSize = 18.sp
+                        )
+                        Text(
+                            modifier = Modifier.offset(x = (-3).dp),
+                            text = "°",
+                            color = MaterialTheme.colorScheme.primary,
+                            fontSize = 18.sp
+                        )
+                    }
+                }
+                Function.ROOT_SQUARE -> {
+                    Box(
+                        modifier = Modifier
+                            .background(MaterialTheme.colorScheme.secondary)
+                            .height(16.666f.vw())
+                            .aspectRatio(1f)
+                            .clickable {mainViewModel.onKeyPress(key.functionName)},
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "√",
+                            color = MaterialTheme.colorScheme.primary,
+                            fontSize = 18.sp
+                        )
+                        Text(
+                            modifier = Modifier.offset(x = (-3).dp),
+                            text = "²",
+                            color = MaterialTheme.colorScheme.primary,
+                            fontSize = 18.sp
+                        )
+                    }
+                }
+                Function.ROOT_CUBIC -> {
+                    Box(
+                        modifier = Modifier
+                            .background(MaterialTheme.colorScheme.secondary)
+                            .height(16.666f.vw())
+                            .aspectRatio(1f)
+                            .clickable {mainViewModel.onKeyPress(key.functionName)},
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "√",
+                            color = MaterialTheme.colorScheme.primary,
+                            fontSize = 18.sp
+                        )
+                        Text(
+                            modifier = Modifier.offset(x = (-3).dp),
+                            text = "³",
+                            color = MaterialTheme.colorScheme.primary,
+                            fontSize = 18.sp
+                        )
+                    }
+                }
+                else ->KeyButton(
+                    mainViewModel,
+                    key.displayText,
+                    MaterialTheme.colorScheme.secondary,
+                    MaterialTheme.colorScheme.primary,
+                    key.icon,
+                    functionName = key.functionName
+                )
+            }
+
         }
         Spacer(modifier = Modifier.weight(2f))
     }
@@ -360,7 +259,7 @@ fun Variables(mainViewModel: KeyPressHandler) {
 
 @Composable
 fun Functions(mainViewModel: KeyPressHandler) {
-    val keys = Function.entries.toList().subList(30, Function.entries.size).chunked(4)
+    val keys = Function.entries.toList().subList(32, Function.entries.size).chunked(4)
 
     LazyRow(modifier = Modifier.fillMaxSize()) {
         items(keys.size) { rowInd ->
@@ -390,28 +289,28 @@ fun SimplestOperations(mainViewModel: KeyPressHandler, secondaryKeys: SnapshotSt
             Function.NUMBER.number(7),
             Function.NUMBER.number(8),
             Function.NUMBER.number(9),
-            Function.DIVIDE.displayText,
+            Function.DIVIDE.functionName,
             Function.NUMBER.number(4),
             Function.NUMBER.number(5),
             Function.NUMBER.number(6),
-            Function.MULTIPLY.displayText,
+            Function.MULTIPLY.functionName,
             Function.NUMBER.number(1),
             Function.NUMBER.number(2),
             Function.NUMBER.number(3),
-            Function.MINUS.displayText,
+            Function.MINUS.functionName,
             Function.NUMBER.number(0),
-            Function.DOT.displayText,
-            Function.DOUBLE_O.displayText,
-            Function.PLUS.displayText
+            Function.DOT.functionName,
+            Function.FRACTION.functionName,
+            Function.PLUS.functionName
         )
 
         val indefiniteKeys = listOf(
-            arrayOf(Function.FRACTION),
-            arrayOf(Function.GREATER, Function.GREATER_EQUALS, Function.LESS_EQUALS, Function.LESS),
+            arrayOf(Function.PERCENT, Function.REMAINDER),
             arrayOf(Function.ROOT_SQUARE, Function.ROOT_CUBIC, Function.ROOT),
             arrayOf(Function.POWER_SQUARE, Function.POWER_CUBIC, Function.POWER),
             arrayOf(Function.PI, Function.PI_DIV_2, Function.PI_DIV_3),
-            arrayOf(Function.PERCENT, Function.REMAINDER),
+            arrayOf(Function.EQUALS, Function.GREATER, Function.GREATER_EQUALS, Function.LESS_EQUALS, Function.LESS),
+            arrayOf(Function.BRACKETS, Function.ABSOLUTE)
         )
 
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
@@ -421,13 +320,29 @@ fun SimplestOperations(mainViewModel: KeyPressHandler, secondaryKeys: SnapshotSt
                 definiteKeys.chunked(4).forEach { row ->
                     Row {
                         row.forEach { key ->
-                            KeyButton(
-                                mainViewModel = mainViewModel,
-                                keyName = key.replace("number/", ""),
-                                bgColor = MaterialTheme.colorScheme.background,
-                                textColor = MaterialTheme.colorScheme.tertiary,
-                                functionName = key
-                            )
+                            val type =
+                                if ("number" in key) Function.NUMBER else Function.fromFunctionName(
+                                    key
+                                )
+
+                            if (type == Function.NUMBER) {
+                                KeyButton(
+                                    mainViewModel = mainViewModel,
+                                    keyName = key.replace("number/", ""),
+                                    bgColor = MaterialTheme.colorScheme.background,
+                                    textColor = MaterialTheme.colorScheme.tertiary,
+                                    functionName = key
+                                )
+                            } else {
+                                KeyButton(
+                                    mainViewModel = mainViewModel,
+                                    keyName = type!!.displayText,
+                                    bgColor = MaterialTheme.colorScheme.background,
+                                    textColor = MaterialTheme.colorScheme.tertiary,
+                                    functionName = type.functionName
+                                )
+                            }
+
                         }
                     }
                 }
@@ -472,56 +387,18 @@ fun SimplestOperations(mainViewModel: KeyPressHandler, secondaryKeys: SnapshotSt
                 }
             }
 
-            Row {
-                val keys = arrayOf(Function.BRACKETS, Function.ABSOLUTE)
-                val mainKey = keys[0]
-
-                Box(
-                    modifier = Modifier
-                        .background(MaterialTheme.colorScheme.background)
-                        .height(16.666f.vw())
-                        .padding(0.dp)
-                        .aspectRatio(1f)
-                        .combinedClickable(
-                            onClick = {
-                                secondaryKeys.clear()
-                                secondaryKeys.addAll(keys)
-                            },
-                            onDoubleClick = {
-                                mainViewModel.onKeyPress(mainKey.functionName)
-                            }
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (mainKey.icon != null) {
-                        Icon(
-                            painter = painterResource(id = mainKey.icon),
-                            contentDescription = mainKey.functionName,
-                            tint = MaterialTheme.colorScheme.primary
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                Row {
+                    for (key in arrayOf(Function.STEP_BACKWARDS, Function.STEP_FORWARD)) {
+                        KeyButton(
+                            mainViewModel,
+                            key.displayText,
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.colorScheme.tertiary,
+                            key.icon,
+                            functionName = key.functionName
                         )
-                    } else {
-                        Text(mainKey.displayText, color = MaterialTheme.colorScheme.primary)
                     }
-                }
-                Box(
-                    modifier = Modifier
-                        .background(MaterialTheme.colorScheme.primary)
-                        .height(16.666f.vw())
-                        .padding(0.dp)
-                        .aspectRatio(1f)
-                        .combinedClickable(
-                            onClick = {
-                                mainViewModel.onKeyPress(Function.EQUALS.functionName)
-                            },
-                            onLongClick = {}
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        Function.EQUALS.displayText,
-                        color = MaterialTheme.colorScheme.tertiary,
-                        fontSize = 20.sp
-                    )
                 }
             }
         }
@@ -533,5 +410,5 @@ val vm = CalcViewModel()
 @Preview
 @Composable
 fun KbrdPreview() {
-    Functions(vm)
+    SimplestOperations(vm, remember { mutableStateListOf() })
 }
