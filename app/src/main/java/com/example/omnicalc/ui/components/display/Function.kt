@@ -133,7 +133,7 @@ enum class Function(
             Operator(expression, displayText, fontSize, viewModel)
         }
     },
-    DOT("dot", ".", null) {
+    DOT("dot", ".", null, inputIndex = -1) {
         @Composable
         override fun Compose(expression: Expression, fontSize: Int, viewModel: DisplayClickHandler) {
             Operator(expression, displayText, fontSize, viewModel)
@@ -142,7 +142,7 @@ enum class Function(
 
     // Input
     NUMBER("number", "n", null, 0, -1),
-    VARIABLE("variable/{ch}", "ch", null, inputIndex = -1),
+    VARIABLE("variable", "ch", null, inputIndex = -1),
     DOUBLE_O("double_o", "00", null),
 
     // Controls
@@ -201,7 +201,9 @@ enum class Function(
         return "number/$num"
     }
 
-    fun variable(char: Char) = functionName.replace("{ch}", char.toString())
+    fun variable(char: Char): String {
+        return "variable/$char"
+    }
 
     companion object {
         fun fromFunctionName(name: String): Function? {

@@ -248,7 +248,8 @@ fun Variables(mainViewModel: KeyPressHandler) {
                         mainViewModel,
                         Function.VARIABLE.variable(key)[9].toString(),
                         MaterialTheme.colorScheme.background,
-                        MaterialTheme.colorScheme.tertiary
+                        MaterialTheme.colorScheme.tertiary,
+                        functionName = Function.VARIABLE.variable(key)
                     )
                 }
             }

@@ -39,6 +39,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.omnicalc.utils.Expression
 import com.example.omnicalc.utils.ExpressionContainer
 import com.example.omnicalc.utils.NumericExpression
+import com.example.omnicalc.utils.VariableExpression
 import kotlinx.coroutines.delay
 
 
@@ -49,24 +50,30 @@ fun ExpressionContainer(
     fontSize: Int,
     viewModel: DisplayClickHandler
 ) {
-    Row(modifier.wrapContentHeight(), verticalAlignment = Alignment.CenterVertically) {
-        if (container.container.size == 0) {
-            Text(
-                modifier = Modifier.pointerInput(Unit) {
-                    detectTapGestures {
-                        viewModel.onSpecialClicked(container.hash)
-                    }
-                },
-                text = "⛶",
-                color = MaterialTheme.colorScheme.primary,
-                fontSize = fontSize.sp
-            )
-        } else for (expression in container.container) {
-            if (expression is NumericExpression) {
-                Operator(expression, expression.value.toString(), fontSize, viewModel)
-            } else expression.type.Compose(expression, fontSize, viewModel)
+    Box(modifier.wrapContentSize(), contentAlignment = Alignment.Center) {
+        Text(
+            modifier = Modifier.pointerInput(Unit) {
+                detectTapGestures {
+                    viewModel.onSpecialClicked(container.hash)
+                }
+            },
+            text = "⛶",
+            color = if (container.container.size == 0) MaterialTheme.colorScheme.primary
+            else Color.Transparent,
+            fontSize = fontSize.sp
+        )
+        Row(modifier.wrapContentHeight(), verticalAlignment = Alignment.CenterVertically) {
+
+            for (expression in container.container) {
+                if (expression is NumericExpression) {
+                    Operator(expression, expression.value.toString(), fontSize, viewModel)
+                } else if (expression is VariableExpression) {
+                    Operator(expression, expression.value.toString(), fontSize, viewModel)
+                } else expression.type.Compose(expression, fontSize, viewModel)
+            }
         }
     }
+
 }
 
 @Composable
@@ -119,7 +126,7 @@ fun SimpleExpression(expression: Expression, fontSize: Int, viewModel: DisplayCl
         ) {
             ExpressionContainer(
                 container = expression.getContainer(0),
-                fontSize = fontSize * 9 / 10,
+                fontSize = fontSize,
                 viewModel = viewModel
             )
         }
@@ -363,7 +370,7 @@ fun Root(expression: Expression, fontSize: Int, viewModel: DisplayClickHandler) 
         val bodyPlaceable = subcompose("body") {
             ExpressionContainer(
                 container = expression.getContainer(1),
-                fontSize = fontSize * 8 / 10,
+                fontSize = fontSize * 9 / 10,
                 viewModel = viewModel
             )
         }.first().measure(constraints)
@@ -501,7 +508,7 @@ fun Logarithm(expression: Expression, fontSize: Int, viewModel: DisplayClickHand
                 .offset(y = 3.dp)
         ) {
             ExpressionContainer(
-                container = expression.getContainer(1   ),
+                container = expression.getContainer(1),
                 fontSize = fontSize * 9 / 10,
                 viewModel = viewModel
             )

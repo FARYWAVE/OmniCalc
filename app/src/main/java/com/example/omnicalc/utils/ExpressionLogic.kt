@@ -7,8 +7,6 @@ import com.example.omnicalc.ui.components.display.Function
 import com.example.omnicalc.ui.components.display.Function.*
 import java.util.Stack
 import kotlin.math.*
-
-
 open class Expression(
     val type: Function,
 ) {
@@ -48,7 +46,7 @@ open class Expression(
         newContainer.parentContainer = parentContainer
     }
 
-    fun solve(): Double {
+    open fun solve(): Double {
         val result = when (type) {
             Function.BRACKETS -> containers[0].solve()
             Function.ABSOLUTE -> containers[0].solve().absoluteValue
@@ -143,6 +141,14 @@ open class Expression(
         }
     }
 
+    fun getVariables(): MutableList<Char> {
+        val result: MutableList<Char> = mutableListOf()
+        containers.forEach {
+            result.addAll(it.getVariables())
+        }
+        return result
+    }
+
     override fun toString(): String {
         if (containers.size == 0) return type.functionName
         var result = "${type.functionName}($hash){"
@@ -157,6 +163,17 @@ open class Expression(
 class NumericExpression(val value: Char) : Expression(Function.NUMBER) {
     override fun toString(): String {
         return value.toString()
+    }
+}
+
+class VariableExpression(val value: Char) : Expression(Function.VARIABLE) {
+    override fun toString(): String {
+        return value.toString()
+    }
+
+    override fun solve(): Double {
+        return VariableManager.getValueByName(value)
+            ?: throw Exception("Error acquired during calculation of variable $value")
     }
 }
 
@@ -226,10 +243,15 @@ class ExpressionContainer(
             if (Expression.operators.contains(expr.type)) {
                 val op = expr.type
 
-                // Factorial is unary postfix
+
                 if (op == Function.FACTORIAL) {
                     val a = values.pop()
                     values.push(factorial(a))
+                    i++
+                    continue
+                } else if (op == Function.POWER) {
+                    val a = values.pop()
+                    values.push(a.pow(expr.solve()))
                     i++
                     continue
                 }
@@ -246,8 +268,12 @@ class ExpressionContainer(
             if (prevWasValue) {
                 operators.push(Function.MULTIPLY)
             }
+            var value: Double
+            if (expr.type == Function.VARIABLE) {
+                val exp = expr as VariableExpression
+                value = exp.solve()
+            } else value = expr.solve()
 
-            val value = expr.solve()
             values.push(value)
             prevWasValue = true
             i++
@@ -286,11 +312,11 @@ class ExpressionContainer(
                 Function.DIVIDE -> a / b
                 Function.PERCENT -> a * b / 100
                 Function.REMAINDER -> a % b
-                Function.GREATER -> if (a > b) 1.0 else 0.0
-                Function.GREATER_EQUALS -> if (a >= b) 1.0 else 0.0
-                Function.LESS -> if (a < b) 1.0 else 0.0
-                Function.LESS_EQUALS -> if (a <= b) 1.0 else 0.0
-                Function.EQUALS -> if (a == b) 1.0 else 0.0
+                Function.GREATER -> if (a > b) 1.583945721467122 else 0.583945721467122
+                Function.GREATER_EQUALS -> if (a >= b) 1.583945721467122 else 0.583945721467122
+                Function.LESS -> if (a < b) 1.583945721467122 else 0.583945721467122
+                Function.LESS_EQUALS -> if (a <= b) 1.583945721467122 else 0.583945721467122
+                Function.EQUALS -> if (a == b) 1.583945721467122 else 0.583945721467122
                 else -> throw Exception("Unsupported operator: $op")
             }
         )
@@ -316,6 +342,9 @@ class ExpressionContainer(
         for (i in container.indices) {
             if (container[i].type == Function.CARET) {
                 if (i > 0) {
+                    if (container[i - 1].type == Function.VARIABLE) {
+                        VariableManager.removeVar((container[i - 1] as VariableExpression).value)
+                    }
                     container.removeAt(i - 1)
                     return
                 } else {
@@ -340,6 +369,7 @@ class ExpressionContainer(
         val caretIndex = container.indexOfFirst { it.type == Function.CARET }
         if (caretIndex != -1) {
             val expression = when (type) {
+                Function.DOT -> NumericExpression('.')
                 Function.ROOT_SQUARE -> {
                     val exp = Expression(ROOT)
                     exp.setValues(
@@ -377,6 +407,7 @@ class ExpressionContainer(
                 }
 
                 Function.NUMBER -> NumericExpression(value!!)
+                Function.VARIABLE -> VariableExpression(value!!)
                 Function.LN -> {
                     val exp = Expression(LOG)
                     exp.setValues(
@@ -431,6 +462,7 @@ class ExpressionContainer(
             expression.setParentContainer(this)
             container.add(caretIndex, expression)
             if (type.inputIndex != -1) {
+                Log.d("DOT", "Type: ${type.functionName}, input index: ${type.inputIndex}")
                 container.removeAll { it.type == Function.CARET }
                 expression.setValues(
                     type.inputIndex,
@@ -439,6 +471,12 @@ class ExpressionContainer(
             }
         } else {
             container.forEach { it.add(type, value) }
+        }
+    }
+
+    fun hasCaret() : Boolean {
+        return container.any {
+            (it.type == Function.CARET) or (it.containers.any { it.hasCaret() })
         }
     }
 
@@ -451,7 +489,11 @@ class ExpressionContainer(
         }
     }
 
-    fun moveCaretIn(hash:Int, start: Boolean = true) {
+    fun moveCaretIn(hash: Int, start: Boolean = true) {
+        if (this.hash == hash) {
+            container.add(Expression(Function.CARET))
+            return
+        }
         container.forEach {
             it.moveCaretIn(hash, start)
         }
@@ -538,6 +580,18 @@ class ExpressionContainer(
             }
         }
         return true
+    }
+
+    fun getVariables(): MutableList<Char> {
+        val result: MutableList<Char> = mutableListOf()
+        container.forEach {
+            result.addAll(it.getVariables())
+            if (it.type == Function.VARIABLE) {
+                it as VariableExpression
+                result.add(it.value)
+            }
+        }
+        return result
     }
 
     override fun toString(): String {

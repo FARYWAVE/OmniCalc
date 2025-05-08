@@ -1,9 +1,11 @@
 package com.example.omnicalc.ui.navigation
 
 import android.app.Activity
+import android.app.Application
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -26,6 +28,9 @@ import com.example.omnicalc.ui.screens.convertor.ConvertorScreen
 import com.example.omnicalc.ui.screens.convertor_selector.ConvertorSelectorScreen
 import com.example.omnicalc.ui.screens.function_selector.FunctionSelectorScreen
 import androidx.compose.material3.*
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -36,6 +41,11 @@ import com.example.omnicalc.utils.vw
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import androidx.core.net.toUri
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.omnicalc.ui.screens.settings.SettingsViewModel
+import com.example.omnicalc.ui.screens.settings.dataStore
+import kotlinx.coroutines.flow.first
 
 
 @Composable
@@ -43,6 +53,7 @@ fun AppNavigation() {
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
     NavigationDrawer(drawerState = drawerState, scope = scope, navController = navController) {
         Scaffold(
             topBar = {

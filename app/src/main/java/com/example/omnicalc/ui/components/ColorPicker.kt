@@ -56,9 +56,10 @@ fun ColorPicker(
                     .fillMaxSize()
                     .padding(2.vw())
             ) {
+                val colors = (0..360 step 30).map { Color.hsv(it.toFloat(), 1f, 0.8f)}.toMutableList()
                 drawRect(
                     brush = Brush.horizontalGradient(
-                        colors = (0..360 step 30).map { Color.hsv(it.toFloat(), 1f, 1f) }
+                        colors = colors
                     )
                 )
             }

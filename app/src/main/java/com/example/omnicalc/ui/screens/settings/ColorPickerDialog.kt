@@ -1,5 +1,6 @@
 package com.example.omnicalc.ui.screens.settings
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -31,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -112,14 +114,15 @@ fun ColorPickerDialog(navController: NavController) {
                         Button(
                             shape = RoundedCornerShape(0.dp),
                             onClick = {
-                                viewModel.onPrimaryColorChanged(Color.hsv(hue, 0.9f, 1f))
+                                Log.d("APPLY", "${Color.hsv(hue, 1f, 1f).toArgb()}")
+                                viewModel.updateColor(Color.hsv(hue, 1f, 0.9f))
                                 navController.popBackStack()
                             },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color.hsv(
                                     hue,
                                     1f,
-                                    1f
+                                    0.8f
                                 )
                             )
                         ) {

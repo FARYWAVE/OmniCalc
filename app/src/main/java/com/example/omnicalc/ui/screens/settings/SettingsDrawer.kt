@@ -7,12 +7,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -23,6 +26,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -40,11 +44,14 @@ fun SettingsDrawer(onClose: () -> Unit, navController: NavController) {
     val viewModel: SettingsViewModel = viewModel()
     val isDarkMode by viewModel.isDarkMode.collectAsState(initial = false)
     val isLeftHanded by viewModel.isLeftHanded.collectAsState(initial = false)
+    val accuracy by viewModel.accuracy.collectAsState(initial = 0)
     LaunchedEffect(isDarkMode) {
         ThemeManager.applyTheme(isDarkMode)
     }
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-        Box (modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.secondary)){
+        Box (modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.secondary)){
             Column(modifier = Modifier.padding(5.vw())) {
                 Text(
                     text = "Settings",
@@ -117,6 +124,28 @@ fun SettingsDrawer(onClose: () -> Unit, navController: NavController) {
                             )
                         }
                     }
+                }
+                Row(modifier = Modifier.height(10.vw()), verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "Accuracy: ${if (accuracy == 11) "MAX" else accuracy}",
+                        fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
+                        fontSize = 18.sp
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Slider(
+                        modifier = Modifier.width(27f.vw()).height(12.dp),
+                        value = accuracy.toFloat(),
+                        onValueChange = { viewModel.updateAccuracy(it.toInt()) },
+                        valueRange = (0f .. 11f),
+                        steps = 11,
+                        colors = SliderDefaults.colors(
+                            thumbColor = MaterialTheme.colorScheme.primary,
+                            activeTrackColor = MaterialTheme.colorScheme.background,
+                            inactiveTrackColor = MaterialTheme.colorScheme.background,
+                            activeTickColor = Color.Transparent,
+                            inactiveTickColor = Color.Transparent
+                        )
+                    )
                 }
             }
         }
