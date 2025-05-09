@@ -49,9 +49,10 @@ fun UnitSelectorBar(type: Measurement.Type) {
     val options = type.getUnits()
     var expanded1 by remember { mutableStateOf(false) }
     var expanded2 by remember { mutableStateOf(false) }
-    var buttonSwitched by remember { mutableStateOf(false) }
     var selected1 by remember { mutableStateOf(options[0]) }
     var selected2 by remember { mutableStateOf(options[1]) }
+    viewModel.updateFrom(selected1)
+    viewModel.updateTo(selected2)
 
     Row {
         ExposedDropdownMenuBox(
@@ -99,6 +100,7 @@ fun UnitSelectorBar(type: Measurement.Type) {
                         onClick = {
                             selected1 = item
                             expanded1 = false
+                            viewModel.updateFrom(item)
                         },
                         text = {
                             Text(
@@ -114,7 +116,7 @@ fun UnitSelectorBar(type: Measurement.Type) {
         }
 
         Button(
-            onClick = { buttonSwitched = !buttonSwitched },
+            onClick = {viewModel.swap()},
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.tertiary)
                 .height(16.666f.vw())
@@ -128,7 +130,7 @@ fun UnitSelectorBar(type: Measurement.Type) {
             )
         ) {
             Icon(
-                painter = painterResource(if (buttonSwitched) R.drawable.arrow_back else R.drawable.arrow_forward),
+                painter = painterResource(if (viewModel.reversed) R.drawable.arrow_back else R.drawable.arrow_forward),
                 contentDescription = "Direction",
                 tint = MaterialTheme.colorScheme.background
             )
@@ -179,6 +181,7 @@ fun UnitSelectorBar(type: Measurement.Type) {
                         onClick = {
                             selected2 = item
                             expanded2 = false
+                            viewModel.updateTo(item)
                         },
                         text = {
                             Text(

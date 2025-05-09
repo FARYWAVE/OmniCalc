@@ -4,6 +4,7 @@ package com.example.omnicalc.ui.components.display
 import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -38,11 +39,8 @@ fun Double.applyAccuracy(accuracy: Int): String {
 @Composable
 fun Display() {
     val viewModel: MainViewModel = viewModel()
-    val settingsViewModel: SettingsViewModel = viewModel()
-    val accuracy by settingsViewModel.accuracy.collectAsState(initial = 11)
-    //VariableManager.setVars(viewModel.rootContainer.getVariables().map { VariableManager.Variable(it) })
     Log.d("Variable Manager", "Variables found: ${VariableManager.variables.map { it.name }}")
-    Column(Modifier.fillMaxSize()) {
+    Column(Modifier.fillMaxWidth()) {
         LazyRow {
             item {
                 ExpressionContainer(
@@ -61,12 +59,6 @@ fun Display() {
             items(VariableManager.variables) { variable ->
                 Log.d("Variabe", variable.name.toString())
                 VariableCard(variable = variable, viewModel = variable)
-            }
-        }
-        LazyRow {
-            item {
-                val result = viewModel.result.value
-                ResultText(Modifier.padding(20.dp), result, accuracy, 30)
             }
         }
     }

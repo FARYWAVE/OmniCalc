@@ -1,5 +1,8 @@
 package com.example.omnicalc.utils
+import android.util.Log
 import com.example.omnicalc.R
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 
 interface MeasurementUnit {
     val ratioToSI: Double
@@ -15,8 +18,46 @@ class Measurement {
             }
             throw Exception("No such unit named $name")
         }
-        fun <T> convert(value: Double, from: T, to: T): Double where T : Enum<T>, T : MeasurementUnit {
+
+        private fun <T> convert(value: Double, from: T, to: T): Double where T : Enum<T>, T : MeasurementUnit {
             return value * from.ratioToSI / to.ratioToSI
+        }
+
+        suspend fun convert(
+            value: Double,
+            from: MeasurementUnit,
+            to: MeasurementUnit,
+            type: Measurement.Type
+        ): Double {
+            try {
+                return when (type) {
+                    Measurement.Type.LENGTH -> Measurement.convert(value, from as Length, to as Length)
+                    Measurement.Type.AREA -> Measurement.convert(value, from as Area, to as Area)
+                    Measurement.Type.SPEED -> Measurement.convert(value, from as Speed, to as Speed)
+                    Measurement.Type.VOLUME -> Measurement.convert(value, from as Volume, to as Volume)
+                    Measurement.Type.MASS -> Measurement.convert(value, from as Mass, to as Mass)
+                    Measurement.Type.TEMPERATURE -> Measurement.convert(value, from as Temperature, to as Temperature)
+                    Measurement.Type.PRESSURE -> Measurement.convert(value, from as Pressure, to as Pressure)
+                    Measurement.Type.POWER -> Measurement.convert(value, from as Power, to as Power)
+                    Measurement.Type.ENERGY -> Measurement.convert(value, from as Energy, to as Energy)
+                    Measurement.Type.TIME -> Measurement.convert(value, from as Time, to as Time)
+                    Measurement.Type.DATA -> Measurement.convert(value, from as Data, to as Data)
+                    Measurement.Type.NUMBER_SYSTEM -> Measurement.convert(value, from as NumberSystem, to as NumberSystem)
+                    Measurement.Type.CURRENCY -> {
+                        Log.d("Measurement", "conversion called")
+                        coroutineScope {
+                            CurrencyParser.convertCurrency(
+                                (from as Currency).toString(),
+                                (to as Currency).toString(),
+                                value
+                            )
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.d("EXCEPTION IN MEASUREMENT", "${e.cause}\n${e.message}")
+                return 0.0
+            }
         }
     }
 
@@ -181,19 +222,21 @@ enum class Temperature(override val unitName: String, override val ratioToSI: Do
     KELVIN("Kelvin")
 }
 
-enum class Currency(override val unitName: String, override val ratioToSI: Double = 0.0) : MeasurementUnit {
-    USD("US Dollar"),
-    EUR("Euro"),
-    GBP("British Pound"),
-    JPY("Japanese Yen"),
-    AUD("Australian Dollar"),
-    CAD("Canadian Dollar"),
-    CHF("Swiss Franc"),
-    CNY("Chinese Yuan"),
-    INR("Indian Rupee"),
-    RUB("Russian Ruble"),
-    BRL("Brazilian Real"),
-    ZAR("South African Rand")
+enum class Currency(private val code: String, override val unitName: String, override val ratioToSI: Double = 0.0) : MeasurementUnit {
+    USD("USD", "US Dollar"),
+    EUR("EUR", "Euro"),
+    GBP("GBP", "British Pound"),
+    JPY("JPY", "Japanese Yen"),
+    AUD("AUD", "Australian Dollar"),
+    CAD("CAD", "Canadian Dollar"),
+    CHF("CHF", "Swiss Franc"),
+    CNY("CNY", "Chinese Yuan"),
+    INR("INR", "Indian Rupee"),
+    RUB("RUB", "Russian Ruble"),
+    BRL("BRL", "Brazilian Real"),
+    ZAR("ZAR", "South African Rand");
+
+    override fun toString(): String = code
 }
 
 

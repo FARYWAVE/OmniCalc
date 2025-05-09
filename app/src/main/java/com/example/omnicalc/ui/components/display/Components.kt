@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material3.MaterialTheme
@@ -26,16 +27,16 @@ fun VariableCard(modifier: Modifier = Modifier, variable: VariableManager.Variab
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.secondary), verticalAlignment = Alignment.CenterVertically) {
             Text(
-                modifier = Modifier.padding(10.dp),
+                modifier = Modifier.padding(10.dp).offset(y = (-1).dp),
                 text = "${variable.name}",
                 color = MaterialTheme.colorScheme.tertiary,
-                fontSize = 22.sp
+                fontSize = 20.sp
             )
             Text(
                 modifier = Modifier.padding(5.dp),
                 text = "=",
                 color = MaterialTheme.colorScheme.tertiary,
-                fontSize = 22.sp
+                fontSize = 20.sp
             )
             LazyRow (Modifier.padding(5.dp)){
                 item {
@@ -51,14 +52,14 @@ fun VariableCard(modifier: Modifier = Modifier, variable: VariableManager.Variab
 }
 
 @Composable
-fun ResultText(modifier: Modifier = Modifier, result: Double, accuracy: Int, fontSize: Int) {
+fun ResultText(modifier: Modifier = Modifier, result: Double, accuracy: Int, fontSize: Int, sign:Boolean = true) {
     Text(
         modifier = modifier,
         text = when (result) {
             4.583945721467122 -> "Incorrect Input"
             1.583945721467122 -> "True"
             0.583945721467122 -> "False"
-            else -> "= ${result.applyAccuracy(accuracy)}"
+            else -> "${if (sign) "=" else ""} ${result.applyAccuracy(accuracy)}"
         },
         color = MaterialTheme.colorScheme.tertiary,
         fontSize = fontSize.sp

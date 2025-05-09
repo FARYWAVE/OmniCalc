@@ -55,33 +55,6 @@ fun ConvertorSelectorScreen(navController: NavController) {
 
             item { Spacer(Modifier.height(38.466f.vw())) }
         }
-
-        FloatingAddButton(modifier = Modifier.constrainAs(addButton) {
-            end.linkTo(parent.end)
-            bottom.linkTo(parent.bottom)
-        })
-    }
-}
-
-@Composable
-fun FloatingAddButton(modifier: Modifier) {
-    Box(modifier.padding(10.9f.vw())) {
-        Button(
-            onClick = {},
-            modifier = Modifier,
-            shape = CutCornerShape(0.dp),
-            contentPadding = PaddingValues(0.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.tertiary
-            )
-        ) {
-            Row(modifier = Modifier.padding(4.vw()), verticalAlignment = Alignment.CenterVertically) {
-                Text("New", fontSize = 24.sp, color = MaterialTheme.colorScheme.tertiary)
-                Spacer(Modifier.width(4.vw()))
-                Text("+", fontSize = 30.sp, color = MaterialTheme.colorScheme.tertiary)
-            }
-        }
     }
 }
 

@@ -204,7 +204,7 @@ fun KeyButton(
 
 
 @Composable
-fun CalcKeyboard() {
+fun CalcKeyboard(modifier: Modifier = Modifier) {
     Log.d("Keyboard init", "passed")
     val settingsViewModel: SettingsViewModel = viewModel()
     val mainViewModel: MainViewModel = viewModel()
@@ -212,7 +212,7 @@ fun CalcKeyboard() {
     val keys = remember { mutableStateListOf<Function>() }
     val isLeftHanded by settingsViewModel.isLeftHanded.collectAsState(initial = false)
 
-    Column {
+    Column (modifier){
         CompositionLocalProvider(LocalLayoutDirection provides if (isLeftHanded) LayoutDirection.Ltr else LayoutDirection.Rtl) {
             SecondaryFuncBar(mainViewModel, keys.toTypedArray())
             VerticalPager(state = pagerState, modifier = Modifier.aspectRatio(1.5f)) { page ->

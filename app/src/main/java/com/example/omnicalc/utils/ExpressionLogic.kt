@@ -24,6 +24,7 @@ open class Expression(
         }
 
         val operators = listOf(
+            Function.DEGREE,
             Function.POWER,
             Function.FACTORIAL,
             Function.GREATER,
@@ -48,6 +49,7 @@ open class Expression(
 
     open fun solve(): Double {
         val result = when (type) {
+            Function.RAD -> containers[0].solve() * 180 / Math.PI
             Function.BRACKETS -> containers[0].solve()
             Function.ABSOLUTE -> containers[0].solve().absoluteValue
             Function.FRACTION -> containers[0].solve() / containers[1].solve()
@@ -158,6 +160,10 @@ open class Expression(
         //Log.d("Expression State", result)
         return result + "}"
     }
+
+    open fun isLooped(target: Char): Boolean {
+        return containers.any{it.isLooped(target)}
+    }
 }
 
 class NumericExpression(val value: Char) : Expression(Function.NUMBER) {
@@ -169,6 +175,11 @@ class NumericExpression(val value: Char) : Expression(Function.NUMBER) {
 class VariableExpression(val value: Char) : Expression(Function.VARIABLE) {
     override fun toString(): String {
         return value.toString()
+    }
+
+    override fun isLooped(target: Char): Boolean {
+        if (target == value) return true
+        return VariableManager.getExpressionByName(value).isLooped(target)
     }
 
     override fun solve(): Double {
@@ -252,6 +263,11 @@ class ExpressionContainer(
                 } else if (op == Function.POWER) {
                     val a = values.pop()
                     values.push(a.pow(expr.solve()))
+                    i++
+                    continue
+                } else if (op == Function.DEGREE) {
+                    val a = values.pop()
+                    values.push(a * Math.PI / 180)
                     i++
                     continue
                 }
@@ -601,5 +617,9 @@ class ExpressionContainer(
         }
         //Log.d("Container State", result)
         return result
+    }
+
+    fun isLooped(target: Char) :Boolean {
+        return container.any{it.isLooped(target)}
     }
 }

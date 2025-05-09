@@ -1,11 +1,7 @@
 package com.example.omnicalc.utils
 
 import android.util.Log
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.example.omnicalc.ui.components.KeyPressHandler
 import com.example.omnicalc.ui.components.display.DisplayClickHandler
 import com.example.omnicalc.ui.components.display.Function
@@ -22,7 +18,6 @@ class VariableManager {
             else expression.moveCaretBefore(hash)
         }
         override fun onSpecialClicked(hash: Int, start: Boolean) {
-            Log.d("Variable Clicked", "Empty, Hash: $hash")
             removeCarets()
             removeCaretFromRoot()
             expression.moveCaretIn(hash, start)
@@ -31,6 +26,7 @@ class VariableManager {
         private var result = 0
         fun getValue(): Double? {
             return try {
+                if (expression.isLooped(name)) throw Exception("Expression is Looped")
                 expression.solve()
             } catch (e: Exception) {
                 null
@@ -42,8 +38,7 @@ class VariableManager {
             when (type) {
                 Function.STEP_FORWARD -> expression.stepForward()
                 Function.STEP_BACKWARDS -> expression.stepBackwards()
-                Function.NUMBER -> expression.add(type, keyName.last())
-                Function.VARIABLE -> {}
+                Function.NUMBER, Function.VARIABLE -> expression.add(type, keyName.last())
                 Function.BACKSPACE -> expression.delete()
                 Function.CLEAR -> {
                     if (expression.hasCaret()) {
@@ -87,6 +82,13 @@ class VariableManager {
         fun removeVar(char: Char) {
             if (char in usages.keys) {
                 if (usages[char]!! == 1) {
+                    for (variable in _variables) {
+                        if (variable.name == char) {
+                            variable.expression.getVariables().forEach {
+                                removeVar(it)
+                            }
+                        }
+                    }
                     _variables.removeAll { it.name == char }
                     usages.remove(char)
                 } else usages[char] = usages[char]!! - 1
@@ -98,5 +100,6 @@ class VariableManager {
         }
 
         fun getValueByName(name: Char) = variables.first { it.name == name }.getValue()
+        fun getExpressionByName(name: Char) = variables.first {it.name == name}.expression
     }
 }

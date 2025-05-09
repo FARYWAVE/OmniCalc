@@ -2,16 +2,22 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    kotlin("plugin.serialization") version "1.9.23"
+
 }
 buildscript {
     dependencies {
-        classpath("com.android.tools.build:gradle:8.7.2")
+        classpath(libs.android.gradle)
     }
 }
+
+
 
 android {
     namespace = "com.example.omnicalc"
     compileSdk = 35
+
+
 
     defaultConfig {
         applicationId = "com.example.omnicalc"
@@ -62,6 +68,11 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.appcompat)
+    implementation(libs.ktor.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.kotlinx.serialization.json)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
