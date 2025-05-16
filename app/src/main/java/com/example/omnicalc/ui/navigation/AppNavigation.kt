@@ -1,12 +1,9 @@
 package com.example.omnicalc.ui.navigation
 
-import android.app.Activity
-import android.app.Application
-import android.content.Intent
-import android.net.Uri
-import android.provider.Settings
-import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -28,24 +25,17 @@ import com.example.omnicalc.ui.screens.convertor.ConvertorScreen
 import com.example.omnicalc.ui.screens.convertor_selector.ConvertorSelectorScreen
 import com.example.omnicalc.ui.screens.function_selector.FunctionSelectorScreen
 import androidx.compose.material3.*
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavController
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.navigation.NavHostController
-import com.example.omnicalc.MainActivity
-import com.example.omnicalc.ui.screens.settings.ColorPickerDialog
+import com.example.omnicalc.ui.components.dialogs.ColorPickerDialog
+import com.example.omnicalc.ui.components.dialogs.ConfirmActionDialog
+import com.example.omnicalc.ui.components.dialogs.NewItemDialog
+import com.example.omnicalc.ui.screens.function.FunctionScreen
 import com.example.omnicalc.ui.screens.settings.SettingsDrawer
 import com.example.omnicalc.utils.vw
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import androidx.core.net.toUri
-import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.omnicalc.ui.screens.settings.SettingsViewModel
-import com.example.omnicalc.ui.screens.settings.dataStore
-import kotlinx.coroutines.flow.first
 
 
 @Composable
@@ -89,8 +79,16 @@ private fun NavigationDrawer(
                 }
             },
             content = {
+                val focusManager = LocalFocusManager.current
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                    content()
+                    Box(Modifier.clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = {focusManager.clearFocus()}
+                    )) {
+                        content()
+                    }
+
                 }
             }
         )
@@ -105,8 +103,9 @@ private fun AppNavHost(navController: NavHostController, paddingValues: PaddingV
         startDestination = Screen.Calc.route,
         modifier = Modifier.padding(paddingValues)
     ) {
+        navController.currentBackStackEntry?.savedStateHandle?.set("confirm_result", false)
         composable(Screen.Calc.route) { CalcScreen() }
-        composable(Screen.FunctionSelector.route) { FunctionSelectorScreen()}
+        composable(Screen.FunctionSelector.route) { FunctionSelectorScreen(navController)}
         composable(Screen.ConvertorSelector.route) { ConvertorSelectorScreen(navController) }
         composable(
             route = Screen.Convertor.route,
@@ -114,8 +113,23 @@ private fun AppNavHost(navController: NavHostController, paddingValues: PaddingV
         ) { backStackEntry ->
             ConvertorScreen(backStackEntry.arguments?.getString("id") ?: "unknown")
         }
+        composable(
+            route = Screen.Function.route,
+            arguments = listOf(navArgument("id") { type = NavType.StringType })
+        ) { backStackEntry ->
+            FunctionScreen(backStackEntry.arguments?.getString("id") ?: "unknown", navController)
+        }
         dialog(Screen.ColorPickerDialog.route) {
             ColorPickerDialog(navController)
+        }
+        dialog(route = Screen.NewItemDialog.route) {
+            NewItemDialog(navController)
+        }
+        dialog(route = Screen.ConfirmActionDialog.route) { backStackEntry ->
+            fun byID(id:String) : String {
+                return backStackEntry.arguments?.getString(id) ?: "unknown"
+            }
+            ConfirmActionDialog(byID("vmID"), navController, byID("key"), byID("item"))
         }
     }
 }

@@ -16,11 +16,14 @@ import com.example.omnicalc.utils.ExpressionContainer
 import com.example.omnicalc.utils.VariableManager
 
 class MainViewModel : ViewModel(), KeyPressHandler, DisplayClickHandler {
-    val rootContainer = ExpressionContainer(mutableStateListOf(Expression(Function.CARET)))
+    companion object {
+        val rootContainer = ExpressionContainer(mutableStateListOf(Expression(Function.CARET))).also {
+            VariableManager.rootContainer = it
+        }
+    }
+
     var result: MutableState<Double> = mutableDoubleStateOf(0.0)
-    private var caretMovingInProgress = false
     override fun onKeyPress(keyName: String) {
-        if (VariableManager.rootContainer == null) VariableManager.rootContainer = rootContainer
         VariableManager.variables.forEach { it.onKeyPress(keyName) }
         val type = Function.fromFunctionName(keyName.substringBefore('/'))
         Log.d("Key Handler", "Key called: $keyName, Detected: $type")
@@ -31,6 +34,7 @@ class MainViewModel : ViewModel(), KeyPressHandler, DisplayClickHandler {
                 rootContainer.add(type, keyName.last())
                 if (type == Function.VARIABLE) VariableManager.addVar(keyName.last())
             }
+
             Function.BACKSPACE -> rootContainer.delete()
             Function.CLEAR -> {
                 if (rootContainer.hasCaret()) {
@@ -56,27 +60,20 @@ class MainViewModel : ViewModel(), KeyPressHandler, DisplayClickHandler {
     }
 
     override fun onDisplayClicked(hash: Int, after: Boolean) {
-        if (!caretMovingInProgress) {
-            Log.d("CaretManagement", "Moving to $hash, after: $after")
-            caretMovingInProgress = true
-            rootContainer.removeCaret()
-            VariableManager.removeCarets()
-            if (after) rootContainer.moveCaretAfter(hash)
-            else rootContainer.moveCaretBefore(hash)
-            caretMovingInProgress = false
-            Log.d("Root Container State", rootContainer.toString())
-        }
+        //Log.d("CaretManagement", "Moving to $hash, after: $after")
+        rootContainer.removeCaret()
+        VariableManager.removeCarets()
+        if (after) rootContainer.moveCaretAfter(hash)
+        else rootContainer.moveCaretBefore(hash)
+        //Log.d("Root Container State", rootContainer.toString())
     }
 
     override fun onSpecialClicked(hash: Int, start: Boolean) {
-        if (!caretMovingInProgress) {
-            Log.d("CaretManagement", "Moving to $hash, start: $start")
-            caretMovingInProgress = true
-            rootContainer.removeCaret()
-            VariableManager.removeCarets()
-            rootContainer.moveCaretIn(hash, start)
-            caretMovingInProgress = false
-            Log.d("Root Container State", rootContainer.toString())
-        }
+        //Log.d("CaretManagement", "Moving in $hash, start: $start")
+        rootContainer.removeCaret()
+        VariableManager.removeCarets()
+        //Log.d("Root Container State ba", rootContainer.toString())
+        rootContainer.moveCaretIn(hash, start)
+        //Log.d("Root Container State aa", rootContainer.toString())
     }
 }

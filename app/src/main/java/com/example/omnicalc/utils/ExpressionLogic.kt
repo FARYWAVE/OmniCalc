@@ -118,12 +118,7 @@ open class Expression(
 
     fun moveCaretIn(hash: Int, start: Boolean = true) {
         containers.forEach {
-            it.removeCaret()
             it.moveCaretIn(hash, start)
-            if (it.hash == hash) {
-                if (start) it.container.add(0, Expression(Function.CARET))
-                else it.container.add(Expression(Function.CARET))
-            }
         }
     }
 
@@ -164,17 +159,41 @@ open class Expression(
     open fun isLooped(target: Char): Boolean {
         return containers.any{it.isLooped(target)}
     }
+
+    open fun toSerializable() : SerializableExpression {
+        return SerializableExpression(
+            type = type.functionName,
+            containers = containers.map { it.toSerializable()},
+            value = '/' //needed only for numeric/variable expressions, "/" just a blank
+        )
+    }
 }
 
 class NumericExpression(val value: Char) : Expression(Function.NUMBER) {
     override fun toString(): String {
         return value.toString()
     }
+
+    override fun toSerializable(): SerializableExpression {
+        return SerializableExpression(
+            type = this.type.functionName,                                 // assuming Function has an `id` field
+            containers = this.containers.map { it.toSerializable()},
+            value = value
+        )
+    }
 }
 
 class VariableExpression(val value: Char) : Expression(Function.VARIABLE) {
     override fun toString(): String {
         return value.toString()
+    }
+
+    override fun toSerializable(): SerializableExpression {
+        return SerializableExpression(
+            type = this.type.functionName,                                 // assuming Function has an `id` field
+            containers = this.containers.map { it.toSerializable()},
+            value = value
+        )
     }
 
     override fun isLooped(target: Char): Boolean {
@@ -213,7 +232,7 @@ class ExpressionContainer(
         while (i < container.size) {
             val expr = container[i]
 
-            if (expr.type == Function.CARET) {
+            if (expr.type == Function.CARET) { //doesn't help
                 i++
                 continue
             }
@@ -232,16 +251,24 @@ class ExpressionContainer(
                 val numberBuilder = StringBuilder()
                 var hasDot = false
 
-                while (i < container.size && container[i].type == Function.NUMBER) {
-                    val numExpr = container[i] as NumericExpression
-                    if (numExpr.value == '.') {
-                        if (hasDot) {
-                            throw IllegalArgumentException("Multiple decimal points in one number: $numberBuilder.")
+                while (i < container.size &&
+                    (container[i].type == Function.NUMBER || container[i].type == CARET)) {
+                    when (container[i].type) {
+                        CARET -> i++
+                        NUMBER -> {
+                            val numExpr = container[i] as NumericExpression
+                            if (numExpr.value == '.') {
+                                if (hasDot) {
+                                    throw IllegalArgumentException("Multiple decimal points in one number: $numberBuilder.")
+                                }
+                                hasDot = true
+                            }
+                            numberBuilder.append(numExpr.value)
+                            i++
                         }
-                        hasDot = true
+                        else -> break
                     }
-                    numberBuilder.append(numExpr.value)
-                    i++
+
                 }
 
                 val num = numberBuilder.toString().toDoubleOrNull()
@@ -507,7 +534,10 @@ class ExpressionContainer(
 
     fun moveCaretIn(hash: Int, start: Boolean = true) {
         if (this.hash == hash) {
-            container.add(Expression(Function.CARET))
+            //Log.d("MOVING CARET IN", "$hash, container: ${this}")
+            container.add(caret)
+            //Log.d("MOVING CARET IN", "container: $this")
+            //Log.d("Root Container State 1", "${VariableManager.rootContainer}")
             return
         }
         container.forEach {
@@ -621,5 +651,13 @@ class ExpressionContainer(
 
     fun isLooped(target: Char) :Boolean {
         return container.any{it.isLooped(target)}
+    }
+
+    fun toSerializable() : SerializableContainer {
+        return SerializableContainer(
+            expressions = container.map {
+                it.toSerializable()
+            }
+        )
     }
 }

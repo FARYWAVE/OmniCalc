@@ -54,7 +54,7 @@ fun ExpressionContainer(
         Text(
             modifier = Modifier.pointerInput(Unit) {
                 detectTapGestures {
-                    viewModel.onSpecialClicked(container.hash)
+                    if (container.container.size == 0) viewModel.onSpecialClicked(container.hash)
                 }
             },
             text = "⛶",
@@ -343,12 +343,11 @@ fun Power(expression: Expression, fontSize: Int, viewModel: DisplayClickHandler)
             fontSize = fontSize * 6 / 10,
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .offset(x = (-1).dp, y = (-fontSize / 5).dp),
+                .offset(x = (-0.3).dp, y = (-fontSize / 5).dp),
             viewModel = viewModel
         )
     }
 }
-
 
 @Composable
 fun Root(expression: Expression, fontSize: Int, viewModel: DisplayClickHandler) {

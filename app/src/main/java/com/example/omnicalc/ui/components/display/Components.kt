@@ -62,6 +62,7 @@ fun ResultText(modifier: Modifier = Modifier, result: Double, accuracy: Int, fon
             else -> "${if (sign) "=" else ""} ${result.applyAccuracy(accuracy)}"
         },
         color = MaterialTheme.colorScheme.tertiary,
-        fontSize = fontSize.sp
+        fontSize = fontSize.sp,
+        maxLines = 1
     )
 }

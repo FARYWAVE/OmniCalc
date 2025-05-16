@@ -45,7 +45,7 @@ fun Display() {
             item {
                 ExpressionContainer(
                     modifier = Modifier.padding(10.dp),
-                    container = viewModel.rootContainer,
+                    container = MainViewModel.rootContainer,
                     fontSize = 22,
                     viewModel = viewModel
                 )

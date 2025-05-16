@@ -1,6 +1,7 @@
 package com.example.omnicalc
 
 import android.app.Application
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -25,7 +26,15 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
     private val settingsViewModel: SettingsViewModel by viewModels()
 
+    companion object {
+        private var instance: MainActivity? = null
+
+        val context: Context
+            get() = instance!!.applicationContext
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        instance = this
         super.onCreate(savedInstanceState)
 
         setContent {

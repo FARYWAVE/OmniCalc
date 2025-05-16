@@ -1,16 +1,22 @@
 package com.example.omnicalc.ui.components
 
 import android.app.Activity
+import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
+import android.provider.Settings
 import androidx.annotation.DrawableRes
 import androidx.compose.ui.res.painterResource
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontVariation
+import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.omnicalc.MainActivity
 import com.example.omnicalc.R
 import com.example.omnicalc.ui.navigation.Screen
-
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -23,42 +29,32 @@ fun TopAppBar(navController: NavController, onSettingsClick: () -> Unit) {
             containerColor = MaterialTheme.colorScheme.secondary
         ),
         title = { Text("") },
-        navigationIcon = {
-            IconButton(
-                onClick = {
-                    
-                }
-            ) {
-                Icon(painter = painterResource(id = R.drawable.overlay), contentDescription = "Overlay", tint = MaterialTheme.colorScheme.tertiary)
-            }
-        },
         actions = {
             TopBarIconButton(
                 navController = navController,
                 destination = Screen.Calc.route,
                 iconRes = R.drawable.calc,
-                description = "Calc",
+                description = "calc",
                 currentRoute = currentRoute
             )
             TopBarIconButton(
                 navController = navController,
                 destination = Screen.FunctionSelector.route,
                 iconRes = R.drawable.function,
-                description = "Function Selector",
-                currentRoute = currentRoute
+                description = "function",
+                currentRoute = currentRoute,
             )
             TopBarIconButton(
                 navController = navController,
                 destination = Screen.ConvertorSelector.route,
                 iconRes = R.drawable.convert,
-                description = "Convertor Selector",
+                description = "convertor",
                 currentRoute = currentRoute,
-                matchPartial = true
             )
             IconButton(onClick = { onSettingsClick() }) {
                 Icon(
                     painter = painterResource(id = R.drawable.settings),
-                    contentDescription = "Settings",
+                    contentDescription = "settings",
                     tint = MaterialTheme.colorScheme.tertiary
                 )
             }
@@ -73,13 +69,8 @@ private fun TopBarIconButton(
     @DrawableRes iconRes: Int,
     description: String,
     currentRoute: String,
-    matchPartial: Boolean = false
 ) {
-    val isSelected = if (matchPartial) {
-        currentRoute.contains("convertor")
-    } else {
-        currentRoute == destination
-    }
+    val isSelected = (currentRoute == destination) or (currentRoute.contains(description))
 
     IconButton(onClick = { navController.navigate(destination) }) {
         Icon(

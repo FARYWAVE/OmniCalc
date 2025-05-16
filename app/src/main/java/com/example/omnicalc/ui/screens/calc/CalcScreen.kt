@@ -39,7 +39,12 @@ fun CalcScreen() {
             Display()
         }
         val result = viewModel.result.value
-        ResultText(Modifier.padding(20.dp), result, accuracy, 30)
+        LazyRow {
+            item {
+                ResultText(Modifier.padding(20.dp), result, accuracy, 30)
+            }
+        }
+
         CalcKeyboard()
     }
 }

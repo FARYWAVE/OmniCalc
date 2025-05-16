@@ -171,6 +171,14 @@ enum class Function(
     TANH("tanh", "tanh", null, 1),
     COTH("coth", "coth", null, 1),
 
+    DEGREE("degree", "°", null, 0, inputIndex = -1) {
+        @Composable
+        override fun Compose(expression: Expression, fontSize: Int, viewModel: DisplayClickHandler) {
+            Operator(expression, displayText, fontSize, viewModel)
+        }
+    },
+    RAD("radian", "rad", null, 1),
+
     // Logarithmic & Exponential
     LN("ln", "ln", null, inputIndex = 1),
     LOG("log", "log", null, 2) {
