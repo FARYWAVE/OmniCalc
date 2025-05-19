@@ -113,6 +113,7 @@ private fun Key(key: ActionBarHandler.Key, viewModel: ActionBarHandler, navContr
             .background(MaterialTheme.colorScheme.tertiary)
             .padding(0.dp),
         onClick = {
+            focusManager.clearFocus()
             if (viewModel is FunctionViewModel) {
                 when (key) {
                     ActionBarHandler.Key.DELETE, ActionBarHandler.Key.COPY -> {

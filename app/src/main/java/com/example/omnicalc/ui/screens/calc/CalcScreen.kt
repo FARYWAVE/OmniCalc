@@ -38,7 +38,7 @@ fun CalcScreen() {
         ) {
             Display()
         }
-        val result = viewModel.result.value
+        val result = MainViewModel.result.value
         LazyRow {
             item {
                 ResultText(Modifier.padding(20.dp), result, accuracy, 30)

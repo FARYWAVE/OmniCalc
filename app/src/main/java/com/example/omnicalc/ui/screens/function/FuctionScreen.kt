@@ -55,7 +55,7 @@ fun FunctionScreen(id: String, navController: NavController) {
             Display()
         }
         mainViewModel.onKeyPress("blank")
-        val result = mainViewModel.result.value
+        val result = MainViewModel.result.value
         LazyRow {
             item {
                 ResultText(Modifier.padding(20.dp), result, accuracy, 30)

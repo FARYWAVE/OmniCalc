@@ -90,6 +90,12 @@ open class Expression(
         }
     }
 
+    fun updateChildren() {
+        containers.forEach {
+            it.updateParentContainer(this, parentContainer)
+        }
+    }
+
     fun getContainer(index: Int): ExpressionContainer {
         return containers[index]
     }
@@ -280,8 +286,6 @@ class ExpressionContainer(
 
             if (Expression.operators.contains(expr.type)) {
                 val op = expr.type
-
-
                 if (op == Function.FACTORIAL) {
                     val a = values.pop()
                     values.push(factorial(a))
@@ -367,13 +371,14 @@ class ExpressionContainer(
 
 
     fun updateParentContainer(
-        newParentExpression: Expression,
+        newParentExpression: Expression?,
         newParentContainer: ExpressionContainer?
     ) {
         parentExpression = newParentExpression
         parentContainer = newParentContainer
         for (item in container) {
             item.setParentContainer(this)
+            item.updateChildren()
         }
     }
 
@@ -505,7 +510,6 @@ class ExpressionContainer(
             expression.setParentContainer(this)
             container.add(caretIndex, expression)
             if (type.inputIndex != -1) {
-                Log.d("DOT", "Type: ${type.functionName}, input index: ${type.inputIndex}")
                 container.removeAll { it.type == Function.CARET }
                 expression.setValues(
                     type.inputIndex,
@@ -535,7 +539,8 @@ class ExpressionContainer(
     fun moveCaretIn(hash: Int, start: Boolean = true) {
         if (this.hash == hash) {
             //Log.d("MOVING CARET IN", "$hash, container: ${this}")
-            container.add(caret)
+            if (start) container.add(0, caret)
+            else container.add(caret)
             //Log.d("MOVING CARET IN", "container: $this")
             //Log.d("Root Container State 1", "${VariableManager.rootContainer}")
             return
@@ -580,7 +585,6 @@ class ExpressionContainer(
                     container.removeAt(caretIndex)
                     parentContainer!!.moveCaretAfter(parentExpression!!.hash)
                 } else {
-                    //Log.d("Caret", "Has right direction")
                     container.removeAt(caretIndex)
                     parentExpression!!.containers[index + 1].container.add(0, caret)
                 }

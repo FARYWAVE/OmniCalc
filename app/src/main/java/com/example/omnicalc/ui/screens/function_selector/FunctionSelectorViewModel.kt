@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -112,6 +113,9 @@ class FunctionSelectorViewModel : ViewModel(), ActionBarHandler {
         _currentFolder.value?.let { folder ->
             viewModelScope.launch(Dispatchers.IO + NonCancellable) {
                 repository.delete(folder)
+                folderContents.value.forEach {
+                    repository.delete(it)
+                }
                 goUp()
             }
         }
@@ -123,7 +127,9 @@ class FunctionSelectorViewModel : ViewModel(), ActionBarHandler {
                 MainViewModel.rootContainer.removeCaret()
                 repository.addFunction(
                         Function(id = 0,
-                            expression = MainViewModel.rootContainer,
+                            expression = MainViewModel.rootContainer.apply {
+                                removeCaret()
+                            },
                             name = name,
                             parentFolderId = folder.id
                         ))

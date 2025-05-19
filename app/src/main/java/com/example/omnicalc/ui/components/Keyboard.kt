@@ -238,7 +238,9 @@ fun CalcKeyboard(modifier: Modifier = Modifier) {
 
 @Composable
 fun Variables(mainViewModel: KeyPressHandler) {
-    val keys = ('a'..'z').chunked(4)
+    val _keys = ('a'..'z').toMutableList()
+    _keys.addAll('A'..'Z')
+    val keys = _keys.chunked(4)
     LazyRow(modifier = Modifier.fillMaxSize()) {
         items(keys.size) { rowInd ->
             val row = keys[rowInd]

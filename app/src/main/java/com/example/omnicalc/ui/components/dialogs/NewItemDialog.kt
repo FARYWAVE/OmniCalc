@@ -123,7 +123,7 @@ fun NewItemDialog(navController: NavController) {
                 Option(0, R.drawable.function, "Function", chosenOption.intValue == 0)
                 Option(1, R.drawable.folder, "Folder", chosenOption.intValue == 1)
                 Option(2, R.drawable.download, "Remote Folder", chosenOption.intValue == 2)
-                val input = remember { mutableStateOf(" ") }
+                val input = remember { mutableStateOf("") }
                 if (chosenOption.intValue in 0..1) {
                     OutlinedTextField(
                         modifier = Modifier.padding(10.dp),
@@ -136,7 +136,7 @@ fun NewItemDialog(navController: NavController) {
                         Button(
                             shape = RoundedCornerShape(0.dp),
                             onClick = { navController.popBackStack() },
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
                         ) {
                             Text(
                                 "Cancel",
@@ -145,7 +145,6 @@ fun NewItemDialog(navController: NavController) {
                                 fontSize = 18.sp
                             )
                         }
-                        Spacer(Modifier.width(5.vw()))
                         Button(
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                             shape = RoundedCornerShape(0.dp),

@@ -95,7 +95,7 @@ fun ColorPickerDialog(navController: NavController) {
                     Button(
                         shape = RoundedCornerShape(0.dp),
                         onClick = { navController.popBackStack() },
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
                     ) {
                         Text(
                             "Cancel",
@@ -104,7 +104,6 @@ fun ColorPickerDialog(navController: NavController) {
                             fontSize = 18.sp
                         )
                     }
-                    Spacer(Modifier.width(5.vw()))
                     Button(
                         shape = RoundedCornerShape(0.dp),
                         onClick = {

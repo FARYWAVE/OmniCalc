@@ -42,7 +42,7 @@ class Measurement {
                     Measurement.Type.ENERGY -> Measurement.convert(value, from as Energy, to as Energy)
                     Measurement.Type.TIME -> Measurement.convert(value, from as Time, to as Time)
                     Measurement.Type.DATA -> Measurement.convert(value, from as Data, to as Data)
-                    Measurement.Type.NUMBER_SYSTEM -> Measurement.convert(value, from as NumberSystem, to as NumberSystem)
+                    Measurement.Type.NUMBER_SYSTEM -> NumberSystemConverter.convert(from as NumberSystem, to as NumberSystem, value)
                     Measurement.Type.CURRENCY -> {
                         Log.d("Measurement", "conversion called")
                         coroutineScope {
@@ -210,10 +210,10 @@ enum class Data(override val unitName: String, override val ratioToSI: Double) :
 }
 
 enum class NumberSystem(override val unitName: String, override val ratioToSI: Double = 0.0) : MeasurementUnit {
-    BINARY("Binary"),
-    OCTAL("Octal"),
-    DECIMAL("Decimal"),
-    HEXADECIMAL("Hexadecimal")
+    BINARY("Binary", 2.0),
+    OCTAL("Octal", 8.0),
+    DECIMAL("Decimal", 10.0),
+    HEXADECIMAL("Hexadecimal", 16.0)
 }
 
 enum class Temperature(override val unitName: String, override val ratioToSI: Double = 0.0) : MeasurementUnit {

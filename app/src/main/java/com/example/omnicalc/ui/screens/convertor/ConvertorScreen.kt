@@ -51,9 +51,9 @@ fun ConvertorScreen(id: String) {
             Display()
         }
         Row (Modifier.padding(5.dp)){
-            val result = mainViewModel.result.value
+            val result = MainViewModel.result.value
             var converted by remember { mutableStateOf(0.0) }
-            LaunchedEffect(result) {
+            LaunchedEffect(result, convertorViewModel.from, convertorViewModel.to, convertorViewModel.reversed) {
                 converted = convertorViewModel.convert(result, measurement)
             }
 

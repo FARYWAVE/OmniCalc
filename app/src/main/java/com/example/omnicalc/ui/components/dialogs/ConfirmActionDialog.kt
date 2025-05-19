@@ -94,12 +94,12 @@ fun ConfirmActionDialog(
                     fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
                     textAlign = TextAlign.Center
                 )
-                Spacer(Modifier.width(5.vw()))
+                Spacer(Modifier.height(10.vw()))
                 Row {
                     Button(
                         shape = RoundedCornerShape(0.dp),
                         onClick = { navController.popBackStack() },
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
                     ) {
                         Text(
                             "Cancel",
@@ -108,7 +108,6 @@ fun ConfirmActionDialog(
                             fontSize = 18.sp
                         )
                     }
-                    Spacer(Modifier.width(5.vw()))
                     Button(
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(0.dp),

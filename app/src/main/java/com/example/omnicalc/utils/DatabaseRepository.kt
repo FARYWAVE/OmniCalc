@@ -15,7 +15,7 @@ class DatabaseRepository(
     private val functionDao: FunctionDao,
     private val folderDao: FunctionFolderDao
 ) {
-    suspend fun getFolderContents(folderId: Int): Flow<List<FunctionFolderItem>> = combine(
+    fun getFolderContents(folderId: Int): Flow<List<FunctionFolderItem>> = combine(
         functionDao.getFunctionsIn(folderId),
         folderDao.getFoldersIn(folderId)
     ) { functions, folders ->

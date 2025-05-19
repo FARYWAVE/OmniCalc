@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.omnicalc.R
+import com.example.omnicalc.ui.screens.MainViewModel
 import com.example.omnicalc.ui.theme.FarywaveTypo
 import com.example.omnicalc.utils.Measurement
 import com.example.omnicalc.utils.vw
@@ -46,6 +47,7 @@ import com.example.omnicalc.utils.vw
 @Composable
 fun UnitSelectorBar(type: Measurement.Type) {
     val viewModel: ConvertorViewModel = viewModel()
+    val mainViewModel: MainViewModel = viewModel()
     val options = type.getUnits()
     var expanded1 by remember { mutableStateOf(false) }
     var expanded2 by remember { mutableStateOf(false) }
@@ -101,6 +103,7 @@ fun UnitSelectorBar(type: Measurement.Type) {
                             selected1 = item
                             expanded1 = false
                             viewModel.updateFrom(item)
+                            mainViewModel.onKeyPress("blank")
                         },
                         text = {
                             Text(
@@ -182,6 +185,7 @@ fun UnitSelectorBar(type: Measurement.Type) {
                             selected2 = item
                             expanded2 = false
                             viewModel.updateTo(item)
+
                         },
                         text = {
                             Text(

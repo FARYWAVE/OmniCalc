@@ -66,7 +66,12 @@ fun FunctionSelectorScreen(navController: NavController) {
             viewModel = selectorViewModel,
             root = isRoot,
             keys = if (isRoot) arrayOf(ActionBarHandler.Key.ADD)
-            else ActionBarHandler.Key.entries.toTypedArray(),
+            else arrayOf(
+                ActionBarHandler.Key.MOVE,
+                ActionBarHandler.Key.SAVE,
+                ActionBarHandler.Key.ADD,
+                ActionBarHandler.Key.DELETE
+            ),
             navController = navController
         )
         Spacer(Modifier.height(10.dp))

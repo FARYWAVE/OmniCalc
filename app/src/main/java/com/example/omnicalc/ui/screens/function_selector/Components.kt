@@ -51,7 +51,7 @@ fun FunctionCard(
             MainViewModel.rootContainer.getVariables().forEach {
                 VariableManager.addVar(it)
             }
-
+            MainViewModel.rootContainer.updateParentContainer(null, null)
             navController.navigate(Screen.Function.withId(function.id.toString()))
             function.expression.container.removeAt(function.expression.container.size - 1)
         })) {
@@ -68,17 +68,18 @@ fun FunctionCard(
             )
             Spacer(Modifier.width(10.dp))
             Text(
+                modifier = Modifier.weight(1f),
                 text = function.name,
                 fontSize = 18.sp,
                 color = MaterialTheme.colorScheme.tertiary,
-                textAlign = TextAlign.Start
             )
-            Spacer(Modifier.weight(1f))
+            Spacer(Modifier.width(10.dp))
             var variables = "Variables: "
-            function.expression.getVariables().forEach {
+            function.expression.getVariables().toSet().forEach {
                 variables += "${it}, "
             }
             Text(
+                modifier = Modifier.weight(1f),
                 text = variables.removeSuffix(", "),
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.primary,
