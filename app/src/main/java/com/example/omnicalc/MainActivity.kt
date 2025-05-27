@@ -17,6 +17,7 @@ import com.example.omnicalc.ui.navigation.AppNavigation
 import com.example.omnicalc.ui.screens.settings.SettingsViewModel
 import com.example.omnicalc.ui.theme.FarywaveTheme
 import com.example.omnicalc.ui.theme.ThemeManager
+import com.google.firebase.FirebaseApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -34,6 +35,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        FirebaseApp.initializeApp(this)
         instance = this
         super.onCreate(savedInstanceState)
 

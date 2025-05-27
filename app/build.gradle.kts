@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     kotlin("plugin.serialization") version "2.0.21"
     id("com.google.devtools.ksp")
+    alias(libs.plugins.google.gms.google.services)
 
 
 }
@@ -20,6 +21,7 @@ ksp {
 buildscript {
     dependencies {
         classpath(libs.android.gradle)
+        classpath(libs.google.services)
     }
 }
 
@@ -92,6 +94,10 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.firebase.database)
+    implementation(libs.google.firebase.firestore.ktx)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.com.google.firebase.firebase.firestore.ktx)
     ksp(libs.androidx.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -11,7 +11,8 @@ enum class Screen(val route: String) {
     Convertor("convertor/{id}"),
     ColorPickerDialog("color_picker_dialog"),
     NewItemDialog("new_item_dialog"),
-    ConfirmActionDialog("confirm_action_dialog/{vmID}, {key}, {item}");
+    ConfirmActionDialog("confirm_action_dialog/{vmID}, {key}, {item}"),
+    RemoteFolderListDialog("remote_folder_list_dialog");
 
     fun withId(id: String) : String {
         return route.replace("{id}", id)

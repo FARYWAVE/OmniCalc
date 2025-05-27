@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "389330105379",
+    "project_id": "omnicalc-9d329",
+    "storage_bucket": "omnicalc-9d329.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:389330105379:android:48021f11090a6e58ceed96",
+        "android_client_info": {
+          "package_name": "com.example.omnicalc"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBkVxyxGu3tArhR8g4SHnK_ojYGVHs2cBk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

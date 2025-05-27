@@ -9,6 +9,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 
 @TypeConverters(DBConvertor::class)
@@ -32,23 +33,24 @@ abstract class FunctionDB : RoomDatabase() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
                             CoroutineScope(Dispatchers.IO).launch {
-                                getDatabase(context).functionFolderDao().insert(
+                                INSTANCE?.functionFolderDao()?.insert(
                                     FunctionFolder(
                                         id = 0,
                                         name = "Root",
                                         parentFolderId = -1
                                     )
                                 )
-
                             }
                         }
                     })
+                    .fallbackToDestructiveMigration() // highly recommended for now
                     .build()
 
                 INSTANCE = instance
                 instance
             }
         }
+
     }
 }
 

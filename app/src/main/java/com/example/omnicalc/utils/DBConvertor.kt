@@ -6,7 +6,18 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class DBConvertor {
-    private val json = Json { prettyPrint = false }
+
+    companion object {
+        private val json = Json { prettyPrint = false }
+        @TypeConverter
+        fun fromExpressionContainer(container: ExpressionContainer) : String {
+            return json.encodeToString<SerializableContainer>(container.toSerializable())
+        }
+        @TypeConverter
+        fun toExpressionContainer(data: String) : ExpressionContainer {
+            return json.decodeFromString<SerializableContainer>(data).toExpressionContainer()
+        }
+    }
 
     @TypeConverter
     fun fromExpressionContainer(container: ExpressionContainer) : String {

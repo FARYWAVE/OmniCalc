@@ -50,6 +50,7 @@ import androidx.navigation.NavController
 import com.example.omnicalc.ui.components.ActionBar
 import com.example.omnicalc.ui.components.ActionBarHandler
 import com.example.omnicalc.ui.components.ColorPicker
+import com.example.omnicalc.utils.DBConvertor
 import com.example.omnicalc.utils.DatabaseRepository
 import com.example.omnicalc.utils.FunctionFolder
 
@@ -78,6 +79,7 @@ fun FunctionSelectorScreen(navController: NavController) {
         LazyColumn(Modifier.fillMaxSize()) {
             items(folderContents) { item ->
                 item.Compose(viewModel = selectorViewModel, navController = navController)
+                if (item is com.example.omnicalc.utils.Function) Log.i("Function", DBConvertor.fromExpressionContainer(item.expression))
             }
         }
     }

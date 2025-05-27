@@ -31,6 +31,7 @@ import androidx.navigation.NavHostController
 import com.example.omnicalc.ui.components.dialogs.ColorPickerDialog
 import com.example.omnicalc.ui.components.dialogs.ConfirmActionDialog
 import com.example.omnicalc.ui.components.dialogs.NewItemDialog
+import com.example.omnicalc.ui.components.dialogs.RemoteFolderListDialog
 import com.example.omnicalc.ui.screens.function.FunctionScreen
 import com.example.omnicalc.ui.screens.settings.SettingsDrawer
 import com.example.omnicalc.utils.vw
@@ -130,6 +131,9 @@ private fun AppNavHost(navController: NavHostController, paddingValues: PaddingV
                 return backStackEntry.arguments?.getString(id) ?: "unknown"
             }
             ConfirmActionDialog(byID("vmID"), navController, byID("key"), byID("item"))
+        }
+        dialog(Screen.RemoteFolderListDialog.route) {
+            RemoteFolderListDialog(navController)
         }
     }
 }

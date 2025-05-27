@@ -13,6 +13,7 @@ import com.example.omnicalc.ui.components.ActionBarHandler
 import com.example.omnicalc.ui.screens.MainViewModel
 import com.example.omnicalc.utils.DatabaseRepository
 import com.example.omnicalc.utils.Expression
+import com.example.omnicalc.utils.FirebaseRepository
 import com.example.omnicalc.utils.Function
 import com.example.omnicalc.utils.FunctionDB
 import com.example.omnicalc.utils.FunctionFolder
@@ -42,22 +43,21 @@ class FunctionSelectorViewModel : ViewModel(), ActionBarHandler {
         val db = FunctionDB.getDatabase(MainActivity.context)
         DatabaseRepository(db.functionDao(), db.functionFolderDao())
     }
+
     companion object {
         private val _currentFolder = MutableStateFlow<FunctionFolder?>(null)
         val currentFolder: StateFlow<FunctionFolder?> = _currentFolder
     }
 
-    override val displayText: MutableState<String> = mutableStateOf(currentFolder.value?.name?: "Error1")
+    override val displayText: MutableState<String> =
+        mutableStateOf(currentFolder.value?.name ?: "Error1")
 
     init {
-        viewModelScope.launch{
-            viewModelScope.launch(Dispatchers.IO + NonCancellable) {
-                if (currentFolder.value == null) openFolder(repository.getFolderById(1)!!)
-                currentFolder.collect { folder ->
-                    displayText.value = folder?.name ?: "Error2"
-                }
+        viewModelScope.launch(Dispatchers.IO + NonCancellable) {
+            if (currentFolder.value == null) openFolder(repository.getFolderById(1)!!)
+            currentFolder.collect { folder ->
+                displayText.value = folder?.name ?: "Error2"
             }
-
         }
     }
 
@@ -72,7 +72,7 @@ class FunctionSelectorViewModel : ViewModel(), ActionBarHandler {
 
     fun openFolder(folder: FunctionFolder) {
         _currentFolder.value = folder
-        Log.d("CURRENT FOLDER", _currentFolder.value?.name?: " null")
+        Log.d("CURRENT FOLDER", _currentFolder.value?.name ?: " null")
     }
 
     fun goUp() {
@@ -96,7 +96,13 @@ class FunctionSelectorViewModel : ViewModel(), ActionBarHandler {
         _currentFolder.value?.let { parent ->
             viewModelScope.launch(Dispatchers.IO + NonCancellable) {
                 Log.d("NEW FOLDER CREATION", "${parent.id} ${parent.name}")
-                repository.addFolder(FunctionFolder(id = 0, name = name, parentFolderId = parent.id))
+                repository.addFolder(
+                    FunctionFolder(
+                        id = 0,
+                        name = name,
+                        parentFolderId = parent.id
+                    )
+                )
             }
         }
     }
@@ -104,7 +110,12 @@ class FunctionSelectorViewModel : ViewModel(), ActionBarHandler {
     fun duplicateFolder() {
         _currentFolder.value?.let {
             viewModelScope.launch(Dispatchers.IO + NonCancellable) {
-                repository.addFolder(_currentFolder.value!!.copy(id = 0, name = "Copy of " + currentFolder.value?.name!!))
+                repository.addFolder(
+                    _currentFolder.value!!.copy(
+                        id = 0,
+                        name = "Copy of " + currentFolder.value?.name!!
+                    )
+                )
             }
         }
     }
@@ -122,17 +133,19 @@ class FunctionSelectorViewModel : ViewModel(), ActionBarHandler {
     }
 
     fun addFunction(name: String) {
-        _currentFolder.value?.let {folder ->
+        _currentFolder.value?.let { folder ->
             viewModelScope.launch(Dispatchers.IO + NonCancellable) {
                 MainViewModel.rootContainer.removeCaret()
                 repository.addFunction(
-                        Function(id = 0,
-                            expression = MainViewModel.rootContainer.apply {
-                                removeCaret()
-                            },
-                            name = name,
-                            parentFolderId = folder.id
-                        ))
+                    Function(
+                        id = 0,
+                        expression = MainViewModel.rootContainer.apply {
+                            removeCaret()
+                        },
+                        name = name,
+                        parentFolderId = folder.id
+                    )
+                )
                 MainViewModel.rootContainer.container.add(Expression(com.example.omnicalc.ui.components.display.Function.CARET))
             }
         }
@@ -142,11 +155,29 @@ class FunctionSelectorViewModel : ViewModel(), ActionBarHandler {
 
     override fun onKeyPressed(key: ActionBarHandler.Key, confirmed: Boolean) {
         if (confirmed) when (key) {
-            ActionBarHandler.Key.MOVE -> {goUp()}
-            ActionBarHandler.Key.COPY -> {duplicateFolder()}
-            ActionBarHandler.Key.SAVE -> {renameFolder(displayText.value)}
+            ActionBarHandler.Key.MOVE -> {
+                goUp()
+            }
+
+            ActionBarHandler.Key.COPY -> {
+                duplicateFolder()
+            }
+
+            ActionBarHandler.Key.SAVE -> {
+                renameFolder(displayText.value)
+            }
+
             ActionBarHandler.Key.ADD -> {}
-            ActionBarHandler.Key.DELETE -> {deleteCurrentFolder()}
+            ActionBarHandler.Key.DELETE -> {
+                deleteCurrentFolder()
+            }
         }
+    }
+
+    fun loadRemoteFunctions(pair: Pair<String, String>) {
+        viewModelScope.launch(Dispatchers.IO + NonCancellable) {
+            FirebaseRepository().loadFunctionsFrom(pair.first, pair.second)
+        }
+
     }
 }

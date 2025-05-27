@@ -37,12 +37,12 @@ class DatabaseRepository(
 
     fun getAllFunctions() : Flow<List<Function>> = functionDao.getAll()
 
-    suspend fun addFolder(folder: FunctionFolder) {
-        folderDao.insert(folder)
+    suspend fun addFolder(folder: FunctionFolder) : Long{
+        return folderDao.insert(folder)
     }
 
-    suspend fun addFunction(function: Function) {
-        functionDao.insert(function)
+    suspend fun addFunction(function: Function) : Long {
+        return functionDao.insert(function)
     }
 
     suspend fun delete(item: FunctionFolderItem) {

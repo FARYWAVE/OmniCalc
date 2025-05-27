@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -27,6 +29,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -50,14 +53,14 @@ import com.example.omnicalc.ui.navigation.Screen
 import com.example.omnicalc.ui.screens.function.FunctionViewModel
 import com.example.omnicalc.ui.screens.function_selector.FunctionSelectorViewModel
 import com.example.omnicalc.ui.screens.settings.SettingsViewModel
+import com.example.omnicalc.utils.FirebaseRepository
 import com.example.omnicalc.utils.vh
 import com.example.omnicalc.utils.vw
 
 @Composable
-fun NewItemDialog(navController: NavController) {
+fun RemoteFolderListDialog(navController: NavController) {
     val insets = WindowInsets.systemBars.asPaddingValues()
     val selectorViewModel: FunctionSelectorViewModel = viewModel()
-    val functionViewModel: FunctionViewModel = viewModel()
     Dialog(onDismissRequest = { navController.popBackStack() }) {
         Box(
             modifier = Modifier
@@ -86,102 +89,48 @@ fun NewItemDialog(navController: NavController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 5.vw()),
-                    text = "New",
+                    text = "Select Remote Folder",
                     fontSize = 22.sp,
                     color = MaterialTheme.colorScheme.tertiary,
                     fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
                     textAlign = TextAlign.Center
                 )
-                val chosenOption = remember { mutableIntStateOf(-1) }
+                val repository = FirebaseRepository()
+                var folders = mutableMapOf<String, String>()
+                Log.d("FOLDERS", folders.keys.joinToString(", "))
+                LaunchedEffect(Unit) {
+                    folders = repository.loadAllFolders()
+                }
 
                 @Composable
-                fun Option(index: Int, icon: Int, text: String, selected: Boolean) {
+                fun Option(pair: Pair<String, String>) {
                     Row(modifier = Modifier
                         .padding(10.dp)
                         .clickable(
                             onClick = {
-                                chosenOption.intValue = index
+                                selectorViewModel.loadRemoteFunctions(pair)
+                                navController.navigate(Screen.FunctionSelector.route)
                             }
                         ),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            painter = painterResource(icon),
+                            painter = painterResource(R.drawable.folder),
                             contentDescription = "Folder",
-                            tint = if (selected) MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.tertiary
+                            tint = MaterialTheme.colorScheme.primary
                         )
                         Spacer(Modifier.width(10.dp))
                         Text(
-                            text = text,
+                            text = pair.second,
                             fontSize = 18.sp,
-                            color = if (selected) MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.tertiary
+                            color = MaterialTheme.colorScheme.tertiary
                         )
                         Spacer(Modifier.weight(1f))
                     }
                 }
-                Option(0, R.drawable.function, "Function", chosenOption.intValue == 0)
-                Option(1, R.drawable.folder, "Folder", chosenOption.intValue == 1)
-                Option(2, R.drawable.download, "Remote Folder", chosenOption.intValue == 2)
-                val input = remember { mutableStateOf("") }
-                if (chosenOption.intValue != -1) {
-                    if (chosenOption.intValue in 0..1) {
-                        OutlinedTextField(
-                            modifier = Modifier.padding(10.dp),
-                            value = input.value,
-                            maxLines = 1,
-                            onValueChange = { input.value = it },
-                            label = { Text("Enter Name") }
-                        )
-                    }
-
-                    Row {
-                        Button(
-                            shape = RoundedCornerShape(0.dp),
-                            onClick = { navController.popBackStack() },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
-                        ) {
-                            Text(
-                                "Cancel",
-                                color = MaterialTheme.colorScheme.tertiary,
-                                fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
-                                fontSize = 18.sp
-                            )
-                        }
-                        Button(
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                            shape = RoundedCornerShape(0.dp),
-                            onClick = {
-                                if (input.value.isNotEmpty() or (chosenOption.intValue == 2)) {
-                                    Log.d("DIALOG", "PASSED")
-                                    when (chosenOption.intValue) {
-                                        0 -> {
-                                            selectorViewModel.addFunction(input.value)
-                                            navController.popBackStack()
-                                        }
-
-                                        1 -> {
-                                            selectorViewModel.createNewFolder(input.value)
-                                            navController.popBackStack()
-                                        }
-
-                                        2 -> {
-                                            Log.d("DIALOG", "PASSED 2")
-                                            navController.navigate(Screen.RemoteFolderListDialog.route)
-                                            Log.d("DIALOG", "PASSED 4")
-                                        }
-                                    }
-                                }
-                            },
-                        ) {
-                            Text(
-                                "Add",
-                                color = MaterialTheme.colorScheme.tertiary,
-                                fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
-                                fontSize = 18.sp
-                            )
-                        }
+                LazyColumn(Modifier.height(50.vh())) {
+                    items(folders.keys.toTypedArray()) {
+                        Option(Pair(it, folders[it]!!))
                     }
                 }
                 Spacer(Modifier.height(5.vw()))

@@ -22,11 +22,11 @@ object CurrencyParser {
     @Serializable
     data class CurrencyResponse(
         val result: String,
-        val conversion_rates: Map<String, Double> // This holds the conversion rates
+        val conversion_rates: Map<String, Double>
     )
 
     suspend fun convertCurrency(from: String, to: String, amount: Double): Double {
-        val url = "https://v6.exchangerate-api.com/v6/1cf12babbd52aeead2e27eed/latest/$from" // Replace with your actual API key
+        val url = "https://v6.exchangerate-api.com/v6/1cf12babbd52aeead2e27eed/latest/$from"
         val response: CurrencyResponse = try {
             client.get(url).body()
         } catch (e: Exception) {
